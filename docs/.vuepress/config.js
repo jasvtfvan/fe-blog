@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'jasvtfvan博客',
+  title: 'jasvtfvan前端博客',
   description: '欢迎来到我的前端小屋',
   base: '/fe-blog/',
   head: [

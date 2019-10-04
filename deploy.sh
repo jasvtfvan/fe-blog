@@ -3,6 +3,9 @@
 # 终止一个错误
 set -e
 
+# 删除 dist目录
+rm -rf docs/.vuepress/dist
+
 # 构建
 npm run docs:build
 
