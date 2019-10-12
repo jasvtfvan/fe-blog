@@ -1,6 +1,6 @@
 module.exports = {
   title: 'jasvtfvan前端博客',
-  description: '欢迎来到我的前端小屋',
+  description: '欢迎来到我的前端工厂',
   base: '/fe-blog/',
   head: [
     ['link', { rel: 'icon', href: '/github.ico' }]
@@ -10,7 +10,7 @@ module.exports = {
   },
   themeConfig: {
     nav: require('./nav'),
-    sidebar: require('./sidebar'),
+    sidebar: 'auto',
     sidebarDepth: 2,
     lastUpdated: 'Last Updated',
     searchMaxSuggestions: 10,

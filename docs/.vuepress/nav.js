@@ -7,8 +7,14 @@ module.exports = [
     items: [
       { text: '高阶函数', link: '/javascript/after/' },
       { text: '柯里化', link: '/javascript/curring/' },
-      { text: '反柯里化', link: '/javascript/unCurring/' },
+      { text: '反柯里化', link: '/javascript/uncurring/' },
       { text: 'promise', link: '/javascript/promise/' },
+    ]
+  },
+  {
+    text: '服务器',
+    items: [
+      { text: '常规部署', link: '/server/normal/' }
     ]
   },
   {
@@ -36,5 +42,5 @@ module.exports = [
       }
     ]
   },
-  { text: 'github', link: 'https://github.com/jasvtfvan' }
+  { text: 'github', link: 'https://github.com/jasvtfvan/fe-blog' }
 ];
