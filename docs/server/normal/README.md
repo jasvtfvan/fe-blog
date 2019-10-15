@@ -29,16 +29,19 @@
 ### 2.1 客户端工具
 * 工具下载 [git bash](https://git-scm.com/downloads)
 * 推荐教程 [Git教程-廖雪峰的官方网站](https://www.liaoxuefeng.com/wiki/896043488029600)
+
 ### 2.2 连接服务器
 ```bash
 ssh root@服务器ip
 ```
 * 查看系统版本
->lsb_release -a
+>`lsb_release -a`
+
 ### 2.3 创建非root用户
 ```bash
 adduser zhangsan
 ```
+
 ### 2.4 授予权限
 `gpasswd`命令是Linux下工作组文件`/etc/group`和`/etc/gshadow`管理工具。
 >`-a`: 添加用户到组<br>
@@ -46,6 +49,7 @@ adduser zhangsan
 ```bash
 sudo gpasswd -a zhangsan
 ```
+
 ### 2.5 添加sudo权限
 * Linux用户配置sudo权限`visudo`,如果你用`visudo`来编辑这个文件，那么它会帮你自动做很多事情，比如说语法检查，加锁防止别人同时修改这个文件等等
 ```bash
@@ -67,6 +71,7 @@ zhangsan ALL=(ALL:ALL) ALL
 * 3 "Run As All Groups", zhangsan"可以以任何用户组的身份运行一些命令
 * 4 前面的规定适用于任何命令
 >`zhangsan`这个用户可以从任何机器登录，以任何用户和用户组的身份运行任何命令。 保存并退出
+
 ### 2.6 修改非root用户密码
 ```bash
 passwd zhangsan
@@ -109,14 +114,15 @@ cat ~/.ssh/id_rsa.pub
 ```bash
 vi ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
-service ssh restart
+service sshd restart
 ```
 >可读 可写 可执行<br>
 >&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(二进制)<br>
 >2^2 * 1 + 2^1 * 1 + 2^0 * 0 = 6  所有者权限<br>
 >2^2 * 0 + 2^1 * 0 + 2^0 * 0 = 0  所属组权限<br>
 >2^2 * 0 + 2^1 * 0 + 2^0 * 0 = 0  其他人权限<br>
->chmod 600 >> 所有者可读可写，所属组和其他人没有任何权限<br>
+>chmod 600 >> 所有者可读可写，所属组和其他人没有任何权限
+
 ### 2.8 安装软件
 #### 2.8.1 更新系统
 ```bash
@@ -134,6 +140,159 @@ yum install wget curl git -y
 ```
 >已安装的，不必重复安装
 
+### 2.9 安装node
+```bash
+wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.35.0/install.sh | bash
+. /root/.bashrc
+nvm install stable
+node -v
+npm i nrm -g
+```
+>nvm github地址: [https://github.com/nvm-sh/nvm](https://github.com/nvm-sh/nvm)<br>
+>nvm sh脚本地址: [https://github.com/nvm-sh/nvm/blob/master/install.sh](https://github.com/nvm-sh/nvm/blob/master/install.sh) <br>
+>https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh === https://raw.githubusercontent.com/creationix/nvm/v0.35.0/install.sh<br>
+* 命令简单解释
+>第一行命令自动执行脚本，并配置环境变量<br>
+>. /root/.bashrc === source /root/.bashrc 使环境变量生效<br>
+>nvm node版本管理工具 --help查看帮助<br>
+>nrm node远程镜像代理工具 --help查看帮助
+* 查看当前npm全局安装的包
+>`npm list -g --depth=0`
+
+### 2.10 编写node程序
+server3000.js
+```js
+let http = require('http');
+let server = http.createServer(function(req,res){
+  res.statusCode = 200;
+  res.setHeader('Content-Type',"text/html");
+  res.end('hello blog 3000');
+});
+server.listen(3000,()=>{
+    console.log('the server is started at port 3000');
+});
+```
+* 上传代码到git服务器，比如:
+>https://gitee.com/zhufengpeixun/2019blog.git
+
+### 2.11 启动程序
+* 安装pm2，进程管理器，进程异常退出时pm2会尝试重启，(守护进程运行程序)
+```bash
+npm install pm2 -g
+```
+>如果已安装，不必再次安装，pm2 -V查看版本
+* 启动server3000.js
+```bash
+pm2 start server3000.js --name 'blog3000'
+```
+>启动命令: pm2 start [fileName] --name [appName]<br>
+>重启命令: pm2 restart [appName]<br>
+>查看列表: pm2 list<br>
+>停止命令: pm2 stop [appName]<br>
+>删除命令: pm2 delete [appName]<br>
+* 访问3000端口
+访问 [http://127.0.0.1:3000](http://127.0.0.1:3000)
+* 查看进程
+```bash
+ps -ef | grep node
+```
+>node 为查看的关键字
+* 杀死进程(比如处理端口被占用)
+```bash
+kill -9 [pid]
+```
+
+### 2.12 nginx
+`Nginx`是一个高性能的`HTTP`和反向代理服务器
+#### 2.12.1 nginx安装
+```bash
+yum install nginx -y
+```
+#### 2.12.2 nginx命令
+* 启动nginx: `nginx -c /etc/nginx/nginx.conf`
+* 关闭nginx: `nginx -s stop`
+* 重读配置文件: `nginx -s reload`
+#### 2.12.3 nginx配置
+* 查看配置文件
+```bash
+cat /etc/nginx/nginx.conf | grep -v '#'
+```
+>| grep -v '#' 排除所有 # 开头的行
+* 配置conf
+```bash
+cd /etc/nginx/conf.d/
+vi blog.conf
+```
+```js
+upstream blog{
+    server 127.0.0.1:3000;
+    server 127.0.0.1:4000;
+}
+server {
+    listen 80;
+    server_name [外网ip或域名];
+    location / {
+        proxy_pass http://blog;
+    }
+}
+```
+>配置后，如果没有启动nginx，需要执行 `nginx -s reload`
+* 查看端口使用情况
+>`netstat -lnpt | grep 80`
+* 异常处理
+>nginx: [error] open() "/run/nginx.pid" failed<br>
+>nginx.conf 中配置了pid /run/nginx.pid<br>
+>发现并没有/run/nginx.pid这个文件<br>
+>1, `ps -ef | grep nginx` 得到pid 比如20926<br>
+>2, `vi /run/nginx.pid` 将20926赋值进去<br>
+>3, `nginx -s reload`
+
+## 3. Docker
+* Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的镜像中，然后发布到任何流行的 Linux或Windows 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口
+
+### 3.1 docker版本
+* docker分为企业版(EE)和社区版(CE)
+* docker-ce社区版地址: [https://docs.docker.com/install/linux/docker-ce/centos/](https://docs.docker.com/install/linux/docker-ce/centos/)
+* docker-hub镜像中心地址: [https://hub.docker.com/](https://hub.docker.com/)
+
+### 3.2 docker安装
+* 卸载旧版本
+```bash
+yum remove docker \
+                docker-client \
+                docker-client-latest \
+                docker-common \
+                docker-latest \
+                docker-latest-logrotate \
+                docker-logrotate \
+                docker-engine
+rm -rf /var/lib/docker
+```
+>卸载需谨慎，请先查看
+* 安装
+```bash
+yum install -y yum-utils device-mapper-persistent-data lvm2
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+yum install docker-ce docker-ce-cli containerd.io
+```
+
+### 3.3 启动docker
+```bash
+systemctl start docker
+```
+
+### 3.4 查看docker信息
+```bash
+docker info
+docker version
+```
 
 
+
+FROM node
+COPY ./app /app
+WORKDIR /app
+RUN npm install
+EXPOSE 3000
+CMD npm start
 
