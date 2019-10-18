@@ -5,7 +5,6 @@ module.exports = [
   {
     text: 'javascript',
     items: [
-      { text: '高阶函数', link: '/javascript/after/' },
       { text: '柯里化', link: '/javascript/curring/' },
       { text: '反柯里化', link: '/javascript/uncurring/' },
       { text: 'promise', link: '/javascript/promise/' },
@@ -14,7 +13,8 @@ module.exports = [
   {
     text: '服务器',
     items: [
-      { text: '常规部署', link: '/server/normal/' }
+      { text: '常规部署', link: '/server/normal/' },
+      { text: '持续集成', link: '/server/cicdpublic/' }
     ]
   },
   {
