@@ -2,7 +2,7 @@
 - 技术栈 前台Vue,后台Node.js
 - 服务器 前台nginx,后台Node.js
 
-![webhookscicd2](/fe-blog/webhookscicd2.png)
+![webhookscicd2](./images/webhookscicd2.png)
 
 ## 2.编写后端服务
 ### 2.1 package.json
@@ -91,7 +91,7 @@ export default {
 - [webhooks文档](https://developer.github.com/webhooks/)
 - [pushevent](https://developer.github.com/v3/activity/events/types/#pushevent)
 
-![githubhook](/fe-blog/githubhook.png)
+![githubhook](./images/githubhook.png)
 
 ### 4.1 生成项目
 ```js
@@ -228,7 +228,7 @@ yum upgrade
 - Docker 属于 Linux 容器的一种封装，提供简单易用的容器使用接口。
 - Docker 将应用程序与该程序的依赖，打包在一个文件里面。运行这个文件，就会生成一个虚拟容器。程序在这个虚拟容器里运行，就好像在真实的物理机上运行一样
 
-![dockercontainer](/fe-blog/dockercontainer.png)
+![dockercontainer](./images/dockercontainer.png)
 
 ### 5.3 安装docker
 ```js
