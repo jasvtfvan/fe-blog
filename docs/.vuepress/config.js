@@ -8,6 +8,7 @@ module.exports = {
   markdown: {
     lineNumbers: true
   },
+  plugins: ['@vuepress/plugin-back-to-top'],
   themeConfig: {
     nav: require('./nav'),
     sidebar: require('./sidebar'),

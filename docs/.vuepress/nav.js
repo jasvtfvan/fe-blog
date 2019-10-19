@@ -23,7 +23,7 @@ module.exports = [
       {
         text: 'vue2',
         items: [
-          { text: '核心源码', link: '/frame/vue2/coreSrcCode' },
+          { text: '核心源码', link: '/frame/vue2/source' },
           { text: '核心概念特性', link: '/frame/vue2/base' },
           { text: '核心应用', link: '/frame/vue2/2.base' },
           { text: '组件应用', link: '/frame/vue2/3.component' },
@@ -31,7 +31,9 @@ module.exports = [
       },
       {
         text: 'react',
-        items: [],
+        items: [
+          { text: '图片压缩', link: 'https://tinypng.com/' }
+        ],
       }
     ],
   },
