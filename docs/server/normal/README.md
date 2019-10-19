@@ -160,7 +160,7 @@ npm i nrm -g
 >`npm list -g --depth=0`
 
 ### 2.10 编写node程序
-server3000.js
+server.js
 ```js
 let http = require('http');
 let server = http.createServer(function(req,res){
@@ -181,17 +181,27 @@ server.listen(3000,()=>{
 npm install pm2 -g
 ```
 >如果已安装，不必再次安装，pm2 -V查看版本
-* 启动server3000.js
+* clone项目创建server4000.js
 ```bash
-pm2 start server3000.js --name 'blog3000'
+cd ~
+git clone https://gitee.com/zhufengpeixun/2019blog.git
+cp server.js server4000.js
+```
+>之后编辑文件，将3000部分改成4000
+* 启动server4000.js
+```bash
+pm2 start server4000.js --name 'server4000'
 ```
 >启动命令: pm2 start [fileName] --name [appName]<br>
 >重启命令: pm2 restart [appName]<br>
 >查看列表: pm2 list<br>
 >停止命令: pm2 stop [appName]<br>
 >删除命令: pm2 delete [appName]<br>
-* 访问3000端口
-访问 [http://127.0.0.1:3000](http://127.0.0.1:3000)
+* 访问4000端口
+访问 [http://127.0.0.1:4000](http://127.0.0.1:4000) 或者使用命令
+```bash
+curl http://127.0.0.1:4000
+```
 * 查看进程
 ```bash
 ps -ef | grep node
@@ -287,12 +297,207 @@ docker info
 docker version
 ```
 
+### 3.5 Docker架构
+![docker-arch](./images/docker-arch.jpg)
 
+### 3.6 阿里云加速
+* 镜像仓库: [https://dev.aliyun.com/search.html](https://dev.aliyun.com/search.html)
+* 镜像加速器: [https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors](https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors)
+* 配置加速器镜像
+```bash
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://fwvjnv59.mirror.aliyuncs.com"]
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```
+>其中 https://fwvjnv59.mirror.aliyuncs.com 可以通过`镜像加速器`链接找到，即镜像加速器地址
 
+### 3.7 服务启动解析
+* 运行镜像并执行命令
+```bash
+docker run ubuntu /bin/echo "Hello world"
+```
+>docker: Docker 的二进制执行文件<br>
+>run: 与前面的 docker 组合来运行一个容器<br>
+>ubuntu指定要运行的镜像，Docker首先从本地主机上查找镜像是否存在，如果不存在，Docker 就会从镜像仓库 Docker Hub 下载公共镜像<br>
+>/bin/echo "Hello world": 在启动的容器里执行的命令
+* 运行新镜像并启动bash脚本
+```bash
+docker container run -p 3333:3000 -it zhufengblog /bin/bash
+npm start
+```
+>-p 参数是将容器的3000端口映射为本机的3333端口<br>
+>-it 参数是将容器的shell容器映射为当前的shell,在本机容器中执行的命令都会发送到容器当中执行
+zhufengblog image的名称<br>
+>/bin/bash 容器启动后执行的第一个命令,这里是启动了bash容器以便执行脚本
+
+### 3.8 启动node服务
+#### 3.8.1 创建目录及server.js文件
+```bash
+cd ~
+mkdir dockerenv
+cd dockerenv/
+mkdir app
+cd mkdir app
+vi server.js
+```
+>将server.js内容粘贴进server.js<br>
+>pwd命令显示为 /root/dockerenv/app
+* 初始化app目录为npm目录
+```bash
+npm i -y
+cat package.json
+```
+>编辑并确保 npm start 运行 node server.js
+#### 3.8.2 Dockerfile
+```bash
+cd ~/dockerenv/
+vi Dockerfile
+```
+```js
 FROM node
 COPY ./app /app
 WORKDIR /app
 RUN npm install
 EXPOSE 3000
 CMD npm start
+```
+>FROM 表示该镜像继承的镜像 :表示标签<br>
+>COPY 是将当前目录下的app目录下面的文件都拷贝到image里的/app目录中<br>
+>WORKDIR 指定工作路径，类似于执行 cd 命令<br>
+>RUN命令在 image 文件的构建阶段执行,RUN npm install 在/app目录下安装依赖，安装后的依赖也会打包到image目录中<br>
+>EXPOSE 暴露3000端口，允许外部连接这个端口<br>
+>CMD命令在容器启动后执行<br>
+
+>*一个 Dockerfile 可以包含多个RUN命令，但是只能有一个CMD命令*<br>
+>*指定了CMD命令以后，docker container run命令就不能附加命令了(比如前面的/bin/bash),否则它会覆盖CMD命令*
+#### 3.8.3 创建image
+```bash
+docker build -t zhufengblog .
+```
+>-t用来指定image镜像的名称，后面还可以加冒号指定标签，如果不指定默认就是latest<br>
+>. 表示Dockerfile文件的所有路径,.就表示当前路径
+#### 3.8.4 启动容器
+```bash
+docker run -d -p 3000:3000 zhufengblog
+```
+>-d 以后台方式运行，即退出当前用户命令链接，容器不会死掉<br>
+>-p 端口映射 :右边 --映射为--> 左边:
+>>冒号左边是外网访问端口，冒号右边是docker容器端口
+
+### 3.9 测试
+* 前边已经配置好nginx
+* pm2方式已经启动server4000
+* 开启浏览器输入 http://ip
+* 如当前为3000，开启浏览器新标签页，会变成4000
+```flow
+nginx 
+  |   => server3000 => docker(zhufengblog)
+  |   => server4000 => pm2(server4000)
+```
+
+
+## 4. Docker命令参考
+
+### 4.1 docker基础命令
+* 查看docker volume帮助
+```bash
+docker volumn --help
+```
+>volumn可以将数据及配置等，持久化的挂载到docker/volumns上
+* **进入docker容器**
+```bash
+docker exec -it [container-id] /bin/bash
+```
+>-it将docker容器shell映射到当前主机<br>
+>[container-id]或者[image-name]都可执行<br>
+>/bin/bash可以简写成bash，代表进入容器后运行bash
+* 根据DockerFile创建镜像
+```bash
+docker build -t hello_docker .
+```
+>-t 给镜像添加标签<br>
+>.  根据当前目录的所有 Dockerfile 文件创建镜像
+
+### 4.2 docker镜像命令
+* 查看镜像
+```bash
+docker images
+```
+* 拉取镜像
+```bash
+docker pull gitlab/gitlab-ce:latest
+```
+* daemon方式运行镜像
+```bash
+docker run -p 8080:80 -d nginx
+```
+>-p 端口映射 80 --映射为--> 8080<br>
+>-d 以后台方式运行，即退出当前用户命令链接，容器不会死掉
+* 删除镜像
+```bash
+docker rmi [image-id]
+```
+
+### 4.3 docker容器命令
+* 查看运行中的容器
+```bash
+docker ps
+```
+* 查看所有容器
+```bash
+docker ps -a
+```
+* 删除容器
+```bash
+docker rm [container-id]
+```
+* 停止容器
+```bash
+docker stop [container-id]
+```
+* 将容器提交成镜像
+```bash
+docker commit -m 'message' [container-id] [image-name]
+```
+* 拷贝文件到容器
+```bash
+docker cp [fileName] [container-id]://usr/share/nginx/html
+```
+
+### 4.4 docker-compose命令
+docker多容器管理
+* 创建文件
+```bash
+cd ~/dockerenv/compose
+touch docker-compose.yml
+vim docker-compose.yml
+```
+>创建后，编写相关配置<br>
+>cd 到 docker-compose.yml 目录下
+* 运行
+```bash
+docker-compose up -d
+```
+* 停止
+```bash
+docker-compose stop
+```
+* 删除
+```bash
+docker-compose rm
+```
+* 构建
+```bash
+docker-compose build
+```
+* 查看日志
+```bash
+docker-compose logs -f
+```
+
 
