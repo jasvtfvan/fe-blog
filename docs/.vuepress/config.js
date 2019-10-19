@@ -10,7 +10,7 @@ module.exports = {
   },
   themeConfig: {
     nav: require('./nav'),
-    sidebar: 'auto',
+    sidebar: require('./sidebar'),
     sidebarDepth: 2,
     lastUpdated: 'Last Updated',
     searchMaxSuggestions: 10,

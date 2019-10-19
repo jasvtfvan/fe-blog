@@ -1,6 +1,6 @@
 module.exports = [
   {
-    text: '指南', link: '/guide/'
+    text: '首页', link: '/'
   },
   {
     text: 'javascript',
@@ -14,8 +14,26 @@ module.exports = [
     text: '服务器',
     items: [
       { text: '常规部署', link: '/server/normal/' },
-      { text: '持续集成', link: '/server/cicdpublic/' }
+      { text: '持续集成', link: '/server/cicd/' }
     ]
+  },
+  {
+    text: '主流框架',
+    items: [
+      {
+        text: 'vue2',
+        items: [
+          { text: '核心源码', link: '/frame/vue2/coreSrcCode' },
+          { text: '核心概念特性', link: '/frame/vue2/base' },
+          { text: '核心应用', link: '/frame/vue2/2.base' },
+          { text: '组件应用', link: '/frame/vue2/3.component' },
+        ],
+      },
+      {
+        text: 'react',
+        items: [],
+      }
+    ],
   },
   {
     text: '工具箱',
