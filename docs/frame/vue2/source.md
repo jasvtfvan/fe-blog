@@ -1,4 +1,4 @@
-# Vue2核心源码分解
+# Vue2数据劫持源码分解
 
 * 观察一个数据Vue2.0 defineProperty，无法针对数组length，length不可枚举
 * [https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)

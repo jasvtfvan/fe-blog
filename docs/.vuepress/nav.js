@@ -14,7 +14,8 @@ module.exports = [
     text: '服务器',
     items: [
       { text: '常规部署', link: '/server/normal/' },
-      { text: '持续集成', link: '/server/cicd/' }
+      { text: '持续集成', link: '/server/cicd/' },
+      { text: 'gitlab搭建', link: '/server/gitlab/' },
     ]
   },
   {
@@ -23,10 +24,13 @@ module.exports = [
       {
         text: 'vue2',
         items: [
-          { text: '核心源码', link: '/frame/vue2/source' },
+          { text: '数据劫持源码', link: '/frame/vue2/source' },
           { text: '核心概念特性', link: '/frame/vue2/base' },
           { text: '核心应用', link: '/frame/vue2/2.base' },
           { text: '组件应用', link: '/frame/vue2/3.component' },
+          { text: '组件封装', link: '/frame/vue2/4.component' },
+          { text: 'render&jsx', link: '/frame/vue2/5.render' },
+          { text: 'vue-cli3.0', link: '/frame/vue2/6.vue-cli' },
         ],
       },
       {
