@@ -18,6 +18,15 @@ GitLab 的搭建有多种方式，本文案例使用 Docker 来搭建。
 * Docker: 19.03.3
 * GitLab: 最新版本 latest (12.3.5)
 * 需求内存：最低 2 GB
+* 查看系统信息
+```bash
+lsb_release -a
+```
+* 查看docker信息，docker版本
+```bash
+docker info
+docker version
+```
 
 ## 3. gitlab安装与配置
 * docker-hub地址: [https://hub.docker.com/r/gitlab/gitlab-ce](https://hub.docker.com/r/gitlab/gitlab-ce)
@@ -56,13 +65,15 @@ docker run --detach \
   gitlab/gitlab-ce:latest
 ```
 >9443,9222,9000端口可根据实际情况配置<br>
->需要在`云服务器安全组`中将**9443,9222,9000**添加的`入站规则`<br>
->http端口默认`80`改为9000，ssh端口默认`22`改为9222<br>
->--detach 代表守护进程运行<br>
+>需要在`云服务器安全组`中将**9443,9222,9000**添加到`入站规则`<br>
+>--detach 代表守护进程运行（缩写 -d）<br>
 >--hostname 代表主机名或域名<br>
+>--publish 端口映射 左边是宿主机端口，右边是docker内部的端口（缩写 -p）<br>
+>--name 给启动容器起名<br>
+>--restart always Docker重启后，容器自动启动<br>
 >-v 是 --volume 的缩写，代表在docker中，配置、日志、数据，宿主机目录和容器目录的映射关系<br>
+>latest 指定镜像tag
 
-*小编尚未发现`9443`的用途，以及如果在配置文件中修改`443`端口*
 * 查看容器
 ```bash
 docker ps
@@ -135,7 +146,8 @@ vi /srv/gitlab/config/gitlab.rb
 external_url 'http://服务器ip:9000'
 gitlab_rails['gitlab_shell_ssh_port'] = 9222
 ```
->`9000`端口用于http，`9222`端口用于ssh
+>`9000`端口用于http，网站访问的http端口和项目http端口<br>
+>`9222`端口用于项目的ssh地址
 
 ### 3.5 再次启动容器，使新端口生效
 ```bash
@@ -152,11 +164,9 @@ docker run --detach \
 ```
 >`9000`端口处，第一次启动容器：--publish 9000:80 \ <br>
 >`9000`端口处，第二次启动容器：--publish 9000:9000 \ <br>
->`9000`即为external_url指定的端口<br>
-* 验证ssh是否配置成功
-```bash
-ssh -T git@ip:9222
-```
+>`9000`即为external_url指定的端口，并将其映射到容器外，供外网使用<br>
+>`9222`对应容器内部的ssh端口，**注意，22端口仍是ssh端口，而配置文件中的9222用于项目ssh地址**<br>
+>*`9443`对应容器`443`端口，即https服务端口，将在最后https部分具体阐述*
 
 ## 4. gitlab使用
 ### 4.1 账户创建
@@ -171,9 +181,9 @@ ssh -T git@ip:9222
 * 创建项目
 first-demo<br>
 ssh地址<br>
-`git@ip:9222:root/first-demo.git`<br>
+`git@服务器ip:9222:root/first-demo.git`<br>
 http地址<br>
-`http://ip:9000/root/first-demo.git`
+`http://服务器ip:9000/root/first-demo.git`
 
 ### 4.3 本地git配置
 >--global代表全局配置<br>
@@ -229,15 +239,19 @@ ssh-rsa xxx......xx yourEmail@example.com
 ```
 >如果生成公钥/私钥时没有加`-C`则没有`yourEmail@example.com`<br>
 #### 4.4.2 配置gitlab服务器ssh公钥/私钥
-* 登录你的用户（非root用户）
+* 登录你的账号（非root账号）
 * 头像 -> Settings -> SSH Keys
 * 将公钥复制到Key中，保存
+* 验证ssh是否配置成功
+```bash
+ssh -T git@服务器ip:9222
+```
 
 ### 4.5 pull/push 拉取和推送
 * 跳转到目标文件夹clone项目
 ```bash
 cd ~/Documents/projects
-git clone git@ip:9222:root/first-demo.git
+git clone git@服务器ip:9222:root/first-demo.git
 cd first-demo/
 ```
 * 配置用户名和邮箱
@@ -287,7 +301,7 @@ git config --list
 user.name=小编gitlab账号
 user.email=小编gitlab邮箱
 # ... ...
-remote.origin.url=http://服务器ip:9000/root/first-demo.git
+remote.origin.url=ssh://git@服务器ip:9222/root/first-demo.git
 remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
 branch.master.remote=origin
 branch.master.merge=refs/heads/master
@@ -301,5 +315,7 @@ branch.master.merge=refs/heads/master
 ## 6. git分支规划
 
 
+
+## 7. https证书
 
 
