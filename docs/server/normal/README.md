@@ -126,8 +126,10 @@ service sshd restart
 ### 2.8 安装软件
 #### 2.8.1 更新系统
 ```bash
-yum update
+yum -y update   # 升级所有包同时也升级软件和系统内核
+yum -y upgrade  # 只升级所有包，不升级软件和系统内核
 ```
+> -y 代表所有提示 `yes or no ?` 选择默认 yes
 #### 2.8.2 查看依赖软件是否安装
 ```bash
 wget --version

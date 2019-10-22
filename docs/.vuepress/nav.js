@@ -25,6 +25,7 @@ module.exports = [
         text: 'vue2',
         items: [
           { text: '数据劫持源码', link: '/frame/vue2/source' },
+          { text: 'dom-diff', link: '/frame/vue2/dom-diff' },
           { text: '核心概念特性', link: '/frame/vue2/base' },
           { text: '核心应用', link: '/frame/vue2/2.base' },
           { text: '组件应用', link: '/frame/vue2/3.component' },
