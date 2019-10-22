@@ -1,7 +1,6 @@
 # Vue2 dom-diff算法 源码分解
 
 ## 1. 最终目录结构
-参考该目录结构，后文不再赘述文件位置
 ```{5,8}
 |-- vue2-dom-diff
     |-- .gitignore
@@ -20,14 +19,14 @@
 ```
 
 ## 2. 构建项目
-* 初始化项目
+1. 初始化项目
 ```bash
 cd ~/Documents/
 mkdir vue2-dom-diff
 cd vue2-dom-diff
 npm init -y
 ```
-* 修改package.json文件
+2. 修改package.json文件
 ```json {7,8,13,14,15,16,17,18}
 {
   "name": "vue2-dom-diff",
@@ -49,11 +48,20 @@ npm init -y
   }
 }
 ```
-* 初始化main.js
+3. 添加.gitignore
+```
+node_modules
+```
+4. 添加 src/index.js
+```js
+alert('hello');
+```
+5. 初始化main.js
 ```bash
+npm install
 npm run build
 ```
-* 创建index.html
+6. 创建index.html
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -81,54 +89,178 @@ npm run build
 </body>
 </html>
 ```
+7. 启动服务
+```bash
+npm run dev
+```
 
 ## 3. 虚拟dom实现
 ### 3.1 虚拟dom结构
 ![2.virutaldom](./images/2.virutaldom.png)
-### 3.2 src/index.js
-测试虚拟dom代码
+### 3.2 src/vdom/vnode.js
 ```js
-import { h } from './vdom';
-// h是用来创建虚拟dom的，虚拟dom就是一个普通js对象，放着类型、属性、多个子类
-const root = document.getElementById('root');
-const oldVnode = h('div', { id: 'container' },
-  h('span', { style: { color: 'red' } }, 'hello'),
-  'world'
-);
-console.log(oldVnode);
+const VNODE_TYPE = 'VNODE_TYPE';
+// 根据图定义结构
+export default function(type, key, props = {}, children, text, domElement) {
+  return {
+    _type: VNODE_TYPE, // 表示这是一个虚拟dom节点
+    type, key, props, children, text, domElement
+  }
+};
 ```
-### 3.3 vdom/index.js
-```js
-import h from './h';
-export {
-    h
-}
-```
-### 3.4 vdom/h.js
+### 3.3 src/vdom/h.js
 ```js
 import vnode from './vnode';
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 function h(type, config, ...children) {
-    const props = {}; // 属性对象
-    let key;
-    if (config) {
-        if (config.key) {
-            key = config.key;
-        }
-        // 迭代config中的每一个属性
-        for (let propName in config) {
-            if (hasOwnProperty.call(config, propName) && propName != 'key') {
-                props[propName] = config[propName];
-            }
-        }
+  const props = {}; // 属性对象
+  let key;
+  if (config) {
+    if (config.key) {
+      key = config.key;
     }
-    // type=div key=undefined
-    return vnode(type, key, props, children.map((child, index) => {
-        return typeof child == 'number' || typeof child == 'string' ? vnode(undefined, undefined, undefined, undefined, child) : child;
-    }));
+  }
+  // 迭代config中的每一个属性
+  for (let propName in config) {
+    // 上边已经把config中的可以传给了key
+    if (hasOwnProperty.call(config, propName) && propName != 'key') {
+      props[propName] = config[propName];
+    }
+  }
+  return vnode(type, key, props, children.map(child => (
+    typeof child === 'string' || typeof child === 'number' ?
+      vnode(undefined, undefined, undefined, undefined, child) :
+      child
+  )));
 }
 export default h;
 ```
+### 3.4 src/vdom/index.js
+```js
+import h from './h';
+export {h};
+```
+### 3.5 src/index.js
+```js
+import { h } from './vdom';
+// h是用来创建虚拟dom的，虚拟dom就是一个普通js对象，放着类型、属性、多个子类
+const root = document.getElementById('root');
+const oldVnode = h(
+  'div', { id: 'container' },
+    h('span', { style: { color: 'red'}}, 'hello'),
+    'world'
+);
+console.log(oldVnode);
+```
+
+## 4. 初次渲染
+```html
+<div id="root">
+  <div id="container">
+    <span style="color: red;">hello</span>
+    "world"
+  </div>
+</div>
+```
+### 4.1 src/vdom/patch.js
+```js
+/**
+ * 把虚拟DOM变成真实DOM挂载到真实DOM容器上
+ * @param {*} vnode 虚拟DOM节点
+ * @param {*} container 真实DOM容器
+ */
+export function mount(vnode, container) {
+};
+```
+### 4.2 src/vdom/index.js
+```js
+import h from './h';
+import { mount } from './patch';
+export { h, mount };
+```
+### 4.3 src/index.js
+```js {10}
+import { h, mount } from './vdom';
+// h是用来创建虚拟dom的，虚拟dom就是一个普通js对象，放着类型、属性、多个子类
+const root = document.getElementById('root');
+const oldVnode = h(
+  'div', { id: 'container' },
+    h('span', { style: { color: 'red'}}, 'hello'),
+    'world'
+);
+console.log(oldVnode);
+mount(oldVnode, root);
+```
+### 4.4 src/vdom/patch.js
+```js
+/**
+ * 把虚拟DOM变成真实DOM挂载到真实DOM容器上
+ * @param {*} vnode 虚拟DOM节点
+ * @param {*} container 真实DOM容器
+ */
+export function mount(vnode, container) {
+  let newDOMElement = createDOMElementFromVnode(vnode);
+  container.appendChild(newDOMElement);
+};
+/**
+ * 通过虚拟DOM节点创建真实DOM节点
+ * @param {*} vnode 
+ */
+function createDOMElementFromVnode(vnode) {
+  let {type, children} = vnode; // type: span div
+  if (type) {
+    // 创建真实DOM元素并挂载到vnode的domElement上
+    const domElement = vnode.domElement = document.createElement(type);
+    // 更新vnode属性
+    updateProperties(vnode);
+    // 如果子类存在，递归挂载append子类到domElement上
+    if (Array.isArray(children)) {
+      children.forEach(child => domElement.appendChild(createDOMElementFromVnode(child)));
+    }
+  } else {
+    vnode.domElement = document.createTextNode(vnode.text);
+  }
+  return vnode.domElement;
+}
+/**
+ * 更新样式及属性
+ * @param {*} vnode 
+ * @param {*} oldProps 
+ */
+function updateProperties(vnode, oldProps = {}) {
+  let newProps = vnode.props; // 新属性对象
+  let domElement = vnode.domElement; // 真实DOM
+  // 样式对象
+  let oldStyle = oldProps.style || {};
+  let newStyle = newProps.style || {};
+  // 先处理样式对象，老的对象里有，新的对象里没有，要删除
+  for (let oldAttrName in oldStyle) {
+    if (!newStyle[oldAttrName]) {
+      domElement.style[oldAttrName] = '';
+    }
+  }
+  // 处理属性对象，老的对象里有，新的对象里没有，要删除
+  for (let oldPropName in oldProps) {
+    if (!newProps[oldPropName]) {
+      delete domElement[oldPropName];
+    }
+  }
+  // 添加+更新 新的属性 和 样式
+  for (let newPropName in newProps) {
+    if (newPropName === 'style') {
+      let styleObject = newProps.style; // 拿到新的样式对象
+      for (let newAttrName in styleObject) {
+        domElement.style[newAttrName] = styleObject[newAttrName];
+      }
+    } else {
+      domElement[newPropName] = newProps[newPropName];
+    }
+  }
+}
+```
+
+
+
 
 
 
