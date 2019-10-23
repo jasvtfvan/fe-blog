@@ -125,8 +125,9 @@ gitlab-rails console production
 Notify.test_email('35****69@qq.com', '邮件标题', '邮件内容').deliver_now
 ```
 收到邮件后，邮件测试完成<br>
-**敲黑板划重点：qq邮箱不能给163发送邮件，即使使用网页qq邮箱，也会被打回来！！！**<br>
-但是163可以给qq发送邮件，如果想要配置163邮箱，请上网参考163的smtp配置。<br>
+>该段描述用于记录，已经可以通过qq邮箱发送给163邮件，原因尚不明确<br>
+>**敲黑板划重点：qq邮箱不能给163发送邮件，即使使用网页qq邮箱，也会被打回来！！！**<br>
+>但是163可以给qq发送邮件，如果想要配置163邮箱，请上网参考163的smtp配置。<br>
 
 ### 3.4 配置访问地址（ip和端口）
 **敲黑板划重点：<br>**
@@ -176,6 +177,13 @@ docker run --detach \
 * 3 普通用户打开邮箱
 点击修改密码链接，修改密码
 * 4 普通用户登录
+* 可以选择关闭注册功能
+>Admin Area(导航栏小扳子) -> Settings -> General<br>
+或者浏览器地址栏输入 [http://服务器ip:9000/admin/application_settings/general](http://服务器ip:9000/admin/application_settings/general)
+
+**Sign-up restrictions**<br>
+Sign-up enabled 取消勾选 -> Save changes
+
 
 ### 4.2 项目创建
 * 创建项目
@@ -240,7 +248,8 @@ ssh-rsa xxx......xx yourEmail@example.com
 >如果生成公钥/私钥时没有加`-C`则没有`yourEmail@example.com`<br>
 #### 4.4.2 配置gitlab服务器ssh公钥/私钥
 * 登录你的账号（非root账号）
-* 头像 -> Settings -> SSH Keys
+* 头像 -> Settings -> SSH Keys<br>
+>或者浏览器地址栏输入 [http://服务器ip:9000/profile/keys](http://服务器ip:9000/profile/keys)
 * 将公钥复制到Key中，保存
 * 验证ssh是否配置成功
 ```bash
@@ -308,8 +317,39 @@ branch.master.merge=refs/heads/master
 ```
 * ssh config 配置方式，小编这里暂不给出，请读者自行搜索 `git多账号`
 
-## 5. gitlab账户角色权限
+## 5. gitlab权限(用户、群组、角色、项目)
 
+### 5.1 用户
+#### 5.1.1 用户分类
+Regular普通用户
+>可以访问自己所在的`群组`和`项目`
+
+Admin管理员
+>可以访问所有`群组`、`项目`、`用户`，并且能够管理所有功能
+
+其他选项
+>是否可以创建群组<br>
+>是否外部用户: 外部用户，只有被明确授权，才能访问`内部`和`私有`项目，并且不能创建群组或项目
+#### 5.1.2 功能
+* 查询用户 [http://服务器ip:9000/admin/users](http://服务器ip:9000/admin/users)
+* 创建用户（根据用户分类）[http://服务器ip:9000/admin/users/new](http://服务器ip:9000/admin/users/new)
+* 编辑用户（根据用户分类）[http://服务器ip:9000/admin/users/用户名/edit](http://服务器ip:9000/admin/users/用户名/edit)
+* 删除用户 [http://服务器ip:9000/admin/users](http://服务器ip:9000/admin/users)
+
+### 5.2 群组
+* 群组描述
+>`群组`允许你管理和协作多个项目。组内成员可以访问群组对应的所有项目。<br>
+`群组`可以嵌套创建子群组<br>
+属于一个`群组`的`项目`以`群组`的namespace为前缀。已存在的`项目`可以加入`群组`。
+* 创建群组
+
+* 创建项目<br>
+项目名 namespace 描述信息
+* 添加成员<br>
+可以选择成员角色 Guest,Reporter,Developer,Maintainer (参考`5.3`角色)，还可以选择过期时间
+
+
+### 5.3 角色
 
 
 ## 6. git分支规划
