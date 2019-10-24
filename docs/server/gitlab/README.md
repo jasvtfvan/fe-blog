@@ -12,21 +12,50 @@
 * 工具下载 [git bash](https://git-scm.com/downloads)
 * 推荐教程 [Git教程-廖雪峰的官方网站](https://www.liaoxuefeng.com/wiki/896043488029600)
 
-## 2. 安装环境
+## 2. 安装环境信息
 GitLab 的搭建有多种方式，本文案例使用 Docker 来搭建。
-* 系统：CentOS 7.6
+### 2.1 gitlab硬件要求
+* CPU: 2核 (官方推荐的最低要求)
+* 系统: CentOS 7.6
 * Docker: 19.03.3
 * GitLab: 最新版本 latest (12.3.5)
-* 需求内存：最低 2 GB
-* 查看系统信息
+* 最低内存: 4GB RAM + 4GB swap (推荐 8GB RAM)
+* 最低硬盘: 10 GB (增加量根据 repositories 大小具体分析)
+### 2.2 查看配置命令
+* 查看操作系统信息
 ```bash
 lsb_release -a
+```
+* 监控系统情况
+```bash
+top
+```
+>`q`退出
+* 查看系统内存使用
+```bash
+free -m
+```
+>单位`M`
+* 查看磁盘占用率
+```bash
+df -h
 ```
 * 查看docker信息，docker版本
 ```bash
 docker info
 docker version
 ```
+* docker监控容器状态
+```bash
+docker stats
+```
+```py {1}
+CONTAINER ID    NAME      CPU %    MEM USAGE / LIMIT      MEM %     NET I/O            BLOCK I/O         PIDS
+443af8ac50ae    gitlab    4.89%    4.634GiB / 15.51GiB    29.87%    4.85MB / 7.16MB    28.7kB / 4.7GB    461
+21bdd9c32eea    redis     0.11%    8.371MiB / 15.51GiB    0.05%     5.71MB / 2.3MB     19.9MB / 0B       4
+82e19d1644f2    mongo     0.19%    77.36MiB / 15.51GiB    0.49%     12.4MB / 21.2MB    16.9MB / 469MB    
+```
+>`ctrl + c`退出
 
 ## 3. gitlab安装与配置
 * docker-hub地址: [https://hub.docker.com/r/gitlab/gitlab-ce](https://hub.docker.com/r/gitlab/gitlab-ce)
@@ -51,7 +80,7 @@ mkdir -p /srv/gitlab/{config,logs,data}
 
 ### 3.2 首次运行，初始化gitlab
 * 启动容器
-```bash
+```py
 docker run --detach \
   --hostname gitlab.example.com \
   --publish 9443:443 \
@@ -90,7 +119,7 @@ docker ps
 vi /srv/gitlab/config/gitlab.rb
 ```
 * 修改下边内容的 `*` 处，然后复制到 gitlab.rb 中
-```
+```py
 gitlab_rails['smtp_enable'] = true
 gitlab_rails['smtp_address'] = "smtp.qq.com"
 gitlab_rails['smtp_port'] = 465
@@ -151,7 +180,7 @@ gitlab_rails['gitlab_shell_ssh_port'] = 9222
 >`9222`端口用于项目的ssh地址
 
 ### 3.5 再次启动容器，使新端口生效
-```bash
+```py
 docker run --detach \
   --publish 9443:443 \
   --publish 9222:22 \
@@ -171,19 +200,19 @@ docker run --detach \
 
 ## 4. gitlab使用
 ### 4.1 账户创建
-* 1 root 用户登录
-* 2 创建普通用户，输入邮箱
-自动发送邮箱
-* 3 普通用户打开邮箱
-点击修改密码链接，修改密码
-* 4 普通用户登录
-* 可以选择关闭注册功能
->Admin Area(导航栏小扳子) -> Settings -> General<br>
-或者浏览器地址栏输入 [http://服务器ip:9000/admin/application_settings/general](http://服务器ip:9000/admin/application_settings/general)
-
+#### 4.1.1 root 用户登录
+* 修改root用户邮箱地址<br>
+[http://服务器ip:9000/admin/users/root/edit](http://服务器ip:9000/admin/users/root/edit)
+>Admin Area(导航栏小扳子) -> Users -> Edit
+* 创建普通用户，输入邮箱<br>
+>自动发送邮箱
+#### 4.1.2 admin可以选择关闭注册功能
+[http://服务器ip:9000/admin/application_settings/general](http://服务器ip:9000/admin/application_settings/general)
+>Admin Area(导航栏小扳子) -> Settings -> General
 **Sign-up restrictions**<br>
 Sign-up enabled 取消勾选 -> Save changes
-
+#### 4.1.2 普通用户打开邮箱
+>点击修改密码链接，修改密码
 
 ### 4.2 项目创建
 * 创建项目
@@ -337,25 +366,70 @@ Admin管理员
 * 删除用户 [http://服务器ip:9000/admin/users](http://服务器ip:9000/admin/users)
 
 ### 5.2 群组
-* 群组描述
+#### 5.2.1 群组描述
 >`群组`允许你管理和协作多个项目。组内成员可以访问群组对应的所有项目。<br>
 `群组`可以嵌套创建子群组<br>
-属于一个`群组`的`项目`以`群组`的namespace为前缀。已存在的`项目`可以加入`群组`。
-* 创建群组
-
-* 创建项目<br>
-项目名 namespace 描述信息
-* 添加成员<br>
-可以选择成员角色 Guest,Reporter,Developer,Maintainer (参考`5.3`角色)，还可以选择过期时间
+属于一个`群组`的`项目`以`群组`的namespace为前缀。<br>
+通过项目配置，已存在的`项目`可以加入`群组`。<br>
+新加入的`项目`namespace不属于当前组。
+#### 5.2.2 功能
+* 创建群组 [http://服务器ip:9000/groups/new](http://服务器ip:9000/groups/new)<br>
+群组名称 namespace 群组描述 权限<br>
+>`Private` 当前群组 和 群组中的项目，只能成员可见<br>
+`Internal` 当前群组 和 所有 internal 项目，可以被所有登录用户访问<br>
+`Public` 不需要任何授权就可以访问 当前群组 和 所有 public 项目
+* 创建项目 [http://服务器ip:9000/projects/new?namespace_id=Group_Id](http://服务器ip:9000/projects/new?namespace_id=Group_Id)<br>
+项目名 群组/用户namespace 项目namespace 描述信息<br>
+>`Private`群组只可以创建`Private`项目<br>
+`Internal`群组可以创建`Private`和`Internal`项目<br>
+`Public`群组可以创建`Private`、`Internal`、`Public`项目<br>
+* 添加成员 [http://服务器ip:9000/groups/Group_Namespace/-/group_members](http://服务器ip:9000/groups/Group_Namespace/-/group_members)<br>
+可以选择成员角色 Guest,Reporter,Developer,Maintainer,Owner (参考`5.3`角色)，并可选过期时间
+#### 5.2.3 角色权限
+[http://服务器ip:9000/help/user/permissions](http://服务器ip:9000/help/user/permissions)
 
 
 ### 5.3 角色
+#### 5.3.1 角色类型
+* `Guest` 访客
+* `Reporter` 报告者
+* `Developer` 开发者
+* `Maintainer` 维护者
+* `Owner` 所有者
+>项目最高权限为`Maintainer`，群组最高权限为`Owner`<br>
+个人创建项目，一些特殊操作可由项目`创建者`执行；<br>
+群组创建项目，一些特殊操作可以由群组`Owner`执行。
+
+### 5.4 项目
+#### 5.4.1 功能
+* 创建项目 [http://服务器ip:9000/projects/new](http://服务器ip:9000/projects/new)<br>
+项目名 群组/用户namespace 项目namespace 描述信息<br>
+>`Private`只有被明确授权的用户才能访问项目（添加成员或添加到群组）<br>
+`Internal`当前项目可以任何登录用户访问<br>
+`Public`当前项目可以被所有人访问，无需授权或登录<br>
+* 添加成员 [http://服务器ip:9000/群组或用户namespace/项目名/-/project_members](http://服务器ip:9000/群组或用户namespace/项目名/-/project_members)<br>
+可以选择成员角色 Guest,Reporter,Developer,Maintainer (参考`5.3`角色)，并可选过期时间
+* 添加到群组 [http://服务器ip:9000/群组或用户namespace/项目名/-/project_members](http://服务器ip:9000/群组或用户namespace/项目名/-/project_members)<br>
+可选最高权限角色 Guest,Reporter,Developer,Maintainer (参考`5.3`角色)，并可选过期时间
+#### 5.4.2 角色权限
+[http://服务器ip:9000/help/user/permissions](http://服务器ip:9000/help/user/permissions)
+* 常用权限
+
+| Action      | Gust        | Reporter    | Developer   | Maintainer  | Owner       |
+| :----:      | :----:      | :----:      | :----:      | :----:      | :----:      |
+| 下载项目     | ✓           | ✓           | ✓           | ✓           | ✓           |
+| 评论        | ✓           | ✓           | ✓           | ✓           | ✓           |
+| 查看项目代码  | ✓           | ✓           | ✓           | ✓           | ✓           |
+| pull项目代码 | ✓           | ✓           | ✓           | ✓           | ✓           |
+| 创建 issue  | ✓           | ✓           | ✓           | ✓           | ✓           |
+| 创建新分支   |             |             | ✓           | ✓           | ✓           |
 
 
-## 6. git分支规划
+## 6. git-flow
 
 
 
 ## 7. https证书
+
 
 

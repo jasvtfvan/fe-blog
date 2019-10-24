@@ -386,6 +386,128 @@ setTimeout(() => {
 ### 查看测试效果
 查看浏览器页面效果
 
+## 6. 一方有子类，另一方没有子类
+### 6.1 图例
+![vue-diff-has-children](./images/vue-diff-has-children.png)
+### 6.2 src/vdom/patch.js
+```js {15-30}
+/**
+ * 比较老的虚拟DOM节点和新的虚拟DOM节点
+ * @param {*} oldVnode 
+ * @param {*} newVnode 
+ */
+export function patch(oldVnode, newVnode) {
+  // 如果新的虚拟DOM节点类型type不一样，直接重建
+  if (oldVnode.type !== newVnode.type) {
+    return oldVnode.domElement.parentNode.replaceChild(createDOMElementFromVnode(newVnode), oldVnode.domElement);
+  }
+  // 老的是文本，新的也是文本，type都是undefined，undefined === undefined，因此不能通过判断type，来确定新值和老值是否相等
+  if (typeof newVnode.text !== 'undefined') {
+    return oldVnode.domElement.textContent = newVnode.text;
+  }
+  // 如果类型一样，继续向下比较， 1.比较属性，2.比较子类
+  let domElement = newVnode.domElement = oldVnode.domElement; // 老的真实DOM节点
+  // 1.比较属性: 传入新的虚拟DOM节点和老的属性对象 更新真实DOM上的属性
+  updateProperties(newVnode, oldVnode.props);
+  // 2.比较子类
+  let oldChildren = oldVnode.children; // 老的虚拟DOM节点的子类
+  let newChildren = newVnode.children; // 新的虚拟DOM节点的子类
+  if (oldChildren.length > 0 && newChildren.length > 0) { // 老的，新的 都有子类
+    // TODO
+  } else if (oldChildren.length > 0) { // 老的有子类，新的没有
+    domElement.innerHTML = '';
+  } else if (newChildren.length > 0) { // 新的有子类，老的没有
+    for (let i = 0; i < newChildren.length; i++) {
+      domElement.appendChild(createDOMElementFromVnode(newChildren[i]));
+    }
+  }
+}
+/**
+ * 把虚拟DOM变成真实DOM挂载到真实DOM容器上
+ * @param {*} vnode 虚拟DOM节点
+ * @param {*} container 真实DOM容器
+ */
+export function mount(vnode, container) {
+  let newDOMElement = createDOMElementFromVnode(vnode);
+  container.appendChild(newDOMElement);
+};
+/**
+ * 通过虚拟DOM节点创建真实DOM节点
+ * @param {*} vnode 
+ */
+function createDOMElementFromVnode(vnode) {
+  let {type, children} = vnode; // type: span div
+  if (type) {
+    // 创建真实DOM元素并挂载到vnode的domElement上
+    const domElement = vnode.domElement = document.createElement(type);
+    // 更新vnode属性
+    updateProperties(vnode);
+    // 如果子类存在，递归挂载append子类到domElement上
+    if (Array.isArray(children)) {
+      children.forEach(child => domElement.appendChild(createDOMElementFromVnode(child)));
+    }
+  } else {
+    vnode.domElement = document.createTextNode(vnode.text);
+  }
+  return vnode.domElement;
+}
+/**
+ * 更新样式及属性，确保新的属性和样式，都更新到真实DOM上
+ * @param {*} vnode 
+ * @param {*} oldProps 
+ */
+function updateProperties(vnode, oldProps = {}) {
+  let newProps = vnode.props; // 新属性对象
+  let domElement = vnode.domElement; // 真实DOM
+  // 样式对象
+  let oldStyle = oldProps.style || {};
+  let newStyle = newProps.style || {};
+  // 先处理样式对象，老的对象里有，新的对象里没有，要删除
+  for (let oldAttrName in oldStyle) {
+    if (!newStyle[oldAttrName]) {
+      domElement.style[oldAttrName] = '';
+    }
+  }
+  // 处理属性对象，老的对象里有，新的对象里没有，要删除
+  for (let oldPropName in oldProps) {
+    if (!newProps[oldPropName]) {
+      delete domElement[oldPropName];
+    }
+  }
+  // 添加+更新 新的属性 和 样式
+  for (let newPropName in newProps) {
+    if (newPropName === 'style') {
+      let styleObject = newProps.style; // 拿到新的样式对象
+      for (let newAttrName in styleObject) {
+        domElement.style[newAttrName] = styleObject[newAttrName];
+      }
+    } else {
+      // 直接更新 用 新属性对象 中的属性 覆盖真实DOM的属性
+      domElement[newPropName] = newProps[newPropName];
+    }
+  }
+}
+```
+### 6.3 src/index.js
+```js
+import { h, mount, patch, vnode } from './vdom';
+// h是用来创建虚拟dom的，虚拟dom就是一个普通js对象，放着类型、属性、多个子类
+// DOMDIFF原则 尽量少操作DOM 而且vue domdiff是针对常用DOM操作进行了优化
+const root = document.getElementById('root');
+const oldVnode = h('ul', { id: 'container' },
+  h('li', { style: { backgroundColor: '#110000' }}, 'A'),
+  h('li', { style: { backgroundColor: '#440000' }}, 'B'),
+  h('li', { style: { backgroundColor: '#770000' }}, 'C'),
+  h('li', { style: { backgroundColor: '#AA0000' }}, 'D')
+);
+const newVnode = h('ul', { id: 'newContainer', style: { border: '1px solid red', height: '10px' } });
+mount(oldVnode, root);
+setTimeout(() => {
+  patch(oldVnode, newVnode);
+}, 1000);
+```
+### 查看测试效果
+查看浏览器页面效果
 
 
 
