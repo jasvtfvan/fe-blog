@@ -9,8 +9,17 @@
 ![gitlab](./images/gitlab.jpg)
 
 ## 1. Git客户端工具
-* 工具下载 [git bash](https://git-scm.com/downloads)
-* 推荐教程 [Git教程-廖雪峰的官方网站](https://www.liaoxuefeng.com/wiki/896043488029600)
+### 1.1 工具下载
+[git bash](https://git-scm.com/downloads)
+### 1.2 推荐教程
+[Git教程-廖雪峰的官方网站](https://www.liaoxuefeng.com/wiki/896043488029600)
+### 1.3 git origin简介
+![git-origin](./images/git-origin.png)
+如上图所示。<br>
+把origin仓库作为中心仓库，跟其他仓库类似，只不过`origin`是约定的命名，就指中心仓库。<br>
+每位developer都可以对origin进行pull/push操作，同时developer之间可以相互pull/push。<br>
+Alice and Bob, Alice and David, and Clair and David 构成了3个小组。<br>
+
 
 ## 2. 安装环境信息
 GitLab 的搭建有多种方式，本文案例使用 Docker 来搭建。
@@ -346,7 +355,7 @@ branch.master.merge=refs/heads/master
 ```
 * ssh config 配置方式，小编这里暂不给出，请读者自行搜索 `git多账号`
 
-## 5. gitlab权限(用户、群组、角色、项目)
+## 5. gitlab权限
 
 ### 5.1 用户
 #### 5.1.1 用户分类
@@ -365,14 +374,25 @@ Admin管理员
 * 编辑用户（根据用户分类）[http://服务器ip:9000/admin/users/用户名/edit](http://服务器ip:9000/admin/users/用户名/edit)
 * 删除用户 [http://服务器ip:9000/admin/users](http://服务器ip:9000/admin/users)
 
-### 5.2 群组
-#### 5.2.1 群组描述
+### 5.2 角色
+#### 5.2.1 角色类型
+* `Guest` 访客
+* `Reporter` 报告者
+* `Developer` 开发者
+* `Maintainer` 维护者
+* `Owner` 所有者
+>项目最高权限为`Maintainer`，群组最高权限为`Owner`<br>
+个人创建项目，一些特殊操作可由项目`创建者`执行；<br>
+群组创建项目，一些特殊操作可以由群组`Owner`执行。
+
+### 5.3 群组
+#### 5.3.1 群组描述
 >`群组`允许你管理和协作多个项目。组内成员可以访问群组对应的所有项目。<br>
 `群组`可以嵌套创建子群组<br>
 属于一个`群组`的`项目`以`群组`的namespace为前缀。<br>
 通过项目配置，已存在的`项目`可以加入`群组`。<br>
 新加入的`项目`namespace不属于当前组。
-#### 5.2.2 功能
+#### 5.3.2 功能
 * 创建群组 [http://服务器ip:9000/groups/new](http://服务器ip:9000/groups/new)<br>
 群组名称 namespace 群组描述 权限<br>
 >`Private` 当前群组 和 群组中的项目，只能成员可见<br>
@@ -385,20 +405,21 @@ Admin管理员
 `Public`群组可以创建`Private`、`Internal`、`Public`项目<br>
 * 添加成员 [http://服务器ip:9000/groups/Group_Namespace/-/group_members](http://服务器ip:9000/groups/Group_Namespace/-/group_members)<br>
 可以选择成员角色 Guest,Reporter,Developer,Maintainer,Owner (参考`5.3`角色)，并可选过期时间
-#### 5.2.3 角色权限
+#### 5.3.3 角色权限
 [http://服务器ip:9000/help/user/permissions](http://服务器ip:9000/help/user/permissions)
+* 常用权限
 
-
-### 5.3 角色
-#### 5.3.1 角色类型
-* `Guest` 访客
-* `Reporter` 报告者
-* `Developer` 开发者
-* `Maintainer` 维护者
-* `Owner` 所有者
->项目最高权限为`Maintainer`，群组最高权限为`Owner`<br>
-个人创建项目，一些特殊操作可由项目`创建者`执行；<br>
-群组创建项目，一些特殊操作可以由群组`Owner`执行。
+| Action                | Gust   | Reporter | Developer | Maintainer | Owner  |
+| :----:                | :----: | :----:   | :----:    | :----:     | :----: |
+| 浏览群组               | ✓      | ✓        | ✓         | ✓          | ✓      |
+| 创建项目               |        |          | ✓         | ✓          | ✓      |
+| 创建/编辑/删除项目里程碑 |        |          | ✓         | ✓          | ✓      |
+| 创建子组               |        |          |           | ✓          | ✓      |
+| 编辑群组               |        |          |           |            | ✓      |
+| 管理成员               |        |          |           |            | ✓      |
+| 删除群组               |        |          |           |            | ✓      |
+| 查看审核事件            |        |          |           |            | ✓      |
+| 禁用邮箱通知            |        |          |           |            | ✓      |
 
 ### 5.4 项目
 #### 5.4.1 功能
@@ -415,18 +436,57 @@ Admin管理员
 [http://服务器ip:9000/help/user/permissions](http://服务器ip:9000/help/user/permissions)
 * 常用权限
 
-| Action      | Gust        | Reporter    | Developer   | Maintainer  | Owner       |
-| :----:      | :----:      | :----:      | :----:      | :----:      | :----:      |
-| 下载项目     | ✓           | ✓           | ✓           | ✓           | ✓           |
-| 评论        | ✓           | ✓           | ✓           | ✓           | ✓           |
-| 查看项目代码  | ✓           | ✓           | ✓           | ✓           | ✓           |
-| pull项目代码 | ✓           | ✓           | ✓           | ✓           | ✓           |
-| 创建 issue  | ✓           | ✓           | ✓           | ✓           | ✓           |
-| 创建新分支   |             |             | ✓           | ✓           | ✓           |
-
+| Action                | Gust   | Reporter | Developer | Maintainer | Owner  |
+| :----:                | :----: | :----:   | :----:    | :----:     | :----: |
+| 下载项目               | ✓      | ✓        | ✓         | ✓          | ✓      |
+| 评论                   | ✓      | ✓        | ✓         | ✓          | ✓      |
+| 查看项目代码            | ✓      | ✓        | ✓         | ✓          | ✓      |
+| pull项目代码           | ✓      | ✓        | ✓         | ✓          | ✓      |
+| 创建issue              | ✓      | ✓        | ✓         | ✓          | ✓      |
+| 创建branch             |        |          | ✓         | ✓          | ✓      |
+| push非保护分支          |        |          | ✓         | ✓          | ✓      |
+| push非保护分支-f        |        |          | ✓         | ✓          | ✓      |
+| remove非保护分支        |        |          | ✓         | ✓          | ✓      |
+| 创建新merge request    |        |          | ✓         | ✓          | ✓      |
+| 标记merge request      |        |          | ✓         | ✓          | ✓      |
+| 锁定merge request      |        |          | ✓         | ✓          | ✓      |
+| 管理/接受merge request  |        |          | ✓         | ✓          | ✓      |
+| 添加tag                |        |          | ✓         | ✓          | ✓      |
+| 创建/编辑/删除项目里程碑  |        |          | ✓         | ✓          | ✓      |
+| 重写/编辑tag           |        |          | ✓         | ✓          | ✓      |
+| 添加members            |        |          |           | ✓          | ✓      |
+| 启动/禁用分支保护        |        |          |           | ✓          | ✓      |
+| push保护分支           |        |          |           | ✓          | ✓      |
+| 打开/关闭dev保护分支push |        |          |           | ✓          | ✓      |
+| 启动/禁用tag保护        |        |          |           | ✓          | ✓      |
+| 编辑项目               |        |          |           | ✓          | ✓      |
+| 添加项目秘钥            |        |          |           | ✓          | ✓      |
+| 设置访问权限            |        |          |           |            | ✓      |
+| 迁移到其他namespace    |        |          |           |            | ✓      |
+| 删除项目               |        |          |           |            | ✓      |
+| 删除issues            |        |          |           |            | ✓      |
+| 禁用邮箱通知           |        |          |           |            | ✓      |
 
 ## 6. git-flow
 
+
+### 6.1 git-flow介绍
+就像代码需要代码规范一样，代码管理同样需要一个清晰的流程和规范<br>
+`Vincent Driessen` 为了解决这个问题提出了 [A Successful Git Branching Model](https://nvie.com/posts/a-successful-git-branching-model/)
+#### 6.1.1 git-flow分支图
+<img src="./images/git-flow.png" height="700"/>
+
+#### 6.1.2 各分支职责
+* **Production 分支**<br>
+Master分支，发布到生产环境的代码，最近发布的Release， 这个分支只能从其他分支合并，不能在这个分支直接修改
+* **Develop 分支**<br>
+这个分支是我们是我们的主开发分支，包含所有要发布到下一个Release的代码，这个主要合并与其他分支，比如Feature分支
+* **Feature 分支**<br>
+这个分支主要是用来开发一个新的功能，一旦开发完成，我们合并回Develop分支进入下一个Release
+* **Release分支**<br>
+当你需要一个发布一个新Release的时候，我们基于Develop分支创建一个Release分支，完成Release后，我们合并到Master和Develop分支
+* **Hotfix分支**<br>
+当我们在Production发现新的Bug时候，我们需要创建一个Hotfix, 完成Hotfix后，我们合并回Master和Develop分支，所以Hotfix的改动会进入下一个Release
 
 
 ## 7. https证书
