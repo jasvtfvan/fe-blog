@@ -1,10 +1,10 @@
-# Vue2数据劫持源码分解
+# 数据劫持
 
 * 观察一个数据Vue2.0 defineProperty，无法针对数组length，length不可枚举
 * [https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)
 >defineProperty只针对对象 数组是没有使用defineProperty的
 
-## 观察对象的getter和setter
+## 1. 观察对象的getter和setter
 * 核心代码
 ```js
 function observer(obj) {
@@ -45,7 +45,7 @@ zf
 * 结论
 >1，增加不存在的属性 不能更新视图 (需要使用vm.$set)
 
-## 递归增加getter和setter
+## 2. 递归增加getter和setter
 * 核心代码
 ```js
 function observer(obj) {
@@ -90,7 +90,7 @@ data.name.n = 'zf';
 >2，默认会递归增加 getter和setter<br>
 >特点： 使用对象的时候 必须先声明属性，这个属性才是响应式的
 
-## 对数组的处理
+## 3. 对数组的处理
 * 核心代码
 ```js
 function observer(obj) {
@@ -142,7 +142,7 @@ data.d[3].name = 'jw'; // 更新视图
 >3，数组里套对象 对象是支持响应式变化的，如果是常量则没有效果<br>
 >4，修改数组索引和长度 是不会导致视图更新的
 
-## 对数组原型方法的处理
+## 4. 对数组原型方法的处理
 * 核心代码
 ```js
 let arrayProto = Array.prototype; // 数组原型上的方法
