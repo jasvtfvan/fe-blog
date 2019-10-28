@@ -76,6 +76,7 @@ zhangsan ALL=(ALL:ALL) ALL
 ```bash
 passwd zhangsan
 ``` 
+
 ### 2.7 SSH无密码登录
 ssh 公钥认证是ssh认证的方式之一。通过公钥认证可实现ssh免密码登陆，git的ssh方式也是通过公钥进行认证的。
 #### 2.7.1 本地生成公钥和私钥
@@ -122,8 +123,41 @@ service sshd restart
 >2^2 * 0 + 2^1 * 0 + 2^0 * 0 = 0  所属组权限<br>
 >2^2 * 0 + 2^1 * 0 + 2^0 * 0 = 0  其他人权限<br>
 >chmod 600 >> 所有者可读可写，所属组和其他人没有任何权限
+#### 2.7.5 重新登录
+```bash
+exit
+ssh root@服务器ip
+```
+>不再需要输入密码
 
-### 2.8 安装软件
+### 2.8 `新服务器`参考
+#### 2.8.1 阿里云新服务器密码
+* **密码: 实例密码 和 远程连接密码**<br>
+实例密码，用于客户端连接，即本地pc的ssh命令连接工具<br>
+远程连接密码(6位)，是阿里云开启web连接页面的密码
+* **重置密码，是否需要重启?**<br>
+实例密码，需要重启实例<br>
+远程连接密码(6位)，不需要重启实例
+* 登录连接
+```bash
+ssh root@服务器ip
+```
+>输入`实例密码`
+#### 2.8.2 查看~/.ssh/known_hosts
+记录已经通过连接的`服务器+公钥`信息
+```bash
+cat ~/.ssh/known_hosts
+```
+>当第一次没有登录成功，不知道`公钥`是否被记录，可通过这个命令查看<br>
+>使用`vim ~/.ssh/known_hosts`删除被错误记录的`公钥`<br>
+#### 2.8.3 其他登录方案(不推荐)
+```bash
+ssh -o StrictHostKeyChecking=no root@服务器ip
+```
+>StrictHostKeyChecking公钥检查参数，不检查，不使用`公钥`连接<br>
+>会被记录到 known_hosts
+
+### 2.9 安装软件
 #### 2.8.1 更新系统
 ```bash
 yum -y update   # 升级所有包同时也升级软件和系统内核
@@ -142,7 +176,7 @@ yum install wget curl git -y
 ```
 >已安装的，不必重复安装
 
-### 2.9 安装node
+### 2.10 安装node
 ```bash
 wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.35.0/install.sh | bash
 . /root/.bashrc
@@ -161,7 +195,7 @@ npm i nrm -g
 * 查看当前npm全局安装的包
 >`npm list -g --depth=0`
 
-### 2.10 编写node程序
+### 2.11 编写node程序
 server.js
 ```js
 let http = require('http');
@@ -177,7 +211,7 @@ server.listen(3000,()=>{
 * 上传代码到git服务器，比如:
 >https://gitee.com/zhufengpeixun/2019blog.git
 
-### 2.11 启动程序
+### 2.12 启动程序
 * 安装pm2，进程管理器，进程异常退出时pm2会尝试重启，(守护进程运行程序)
 ```bash
 npm install pm2 -g
@@ -214,7 +248,7 @@ ps -ef | grep node
 kill -9 [pid]
 ```
 
-### 2.12 nginx
+### 2.13 nginx
 `Nginx`是一个高性能的`HTTP`和反向代理服务器
 #### 2.12.1 nginx安装
 ```bash
@@ -268,7 +302,7 @@ server {
 * docker-hub镜像中心地址: [https://hub.docker.com/](https://hub.docker.com/)
 
 ### 3.2 docker安装
-* 卸载旧版本
+#### 3.2.1 卸载旧版本
 ```bash
 yum remove docker \
                 docker-client \
@@ -281,12 +315,24 @@ yum remove docker \
 rm -rf /var/lib/docker
 ```
 >卸载需谨慎，请先查看
-* 安装
-```bash
+#### 3.2.2 安装
+```bash {2}
 yum install -y yum-utils device-mapper-persistent-data lvm2
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-yum install docker-ce docker-ce-cli containerd.io
+yum install -y docker-ce docker-ce-cli containerd.io
 ```
+#### 3.2.3 常见异常
+* 在执行`3.2.2`第2行时，有时会出现异常
+```
+"Could not resolve host: download.docker.com; 未知的错误"
+```
+>原因在于首次请求docker地址，无法直接下载
+* 解决方法
+```bash
+curl https://download.docker.com/linux/centos/
+```
+>1. 先请求通docker地址，会返回网页内容<br>
+>2. 然后可以执行`3.2.2`第2行和第3行命令
 
 ### 3.3 启动docker
 ```bash
@@ -502,4 +548,53 @@ docker-compose build
 docker-compose logs -f
 ```
 
-
+## 5. docker修改data目录
+* [修改daemon.json](https://docs.docker.com/config/daemon/systemd/#custom-docker-daemon-options)
+* 为了减少系统磁盘压力，可以将docker镜像、容器、volumes放到挂载的目录(/mnt/data/docker)
+### 5.1 显示docker目录下所有文件
+```bash
+du /var/lib/docker
+```
+### 5.2 查看docker信息
+```bash
+docker info
+```
+>Storage Driver: overlay2<br>
+>Docker Root Dir: /var/lib/docker<br>
+> Registry Mirrors: https://21f73xp7.mirror.aliyuncs.com/<br>
+### 5.3 创建data-root目录
+```bash
+mkdir /mnt/data/docker
+```
+* 如果docker中已经有镜像，需要执行拷贝
+>cp /var/lib/docker /mnt/data/docker
+### 5.4 停止docker服务
+```bash
+systemctl stop docker
+```
+### 5.5 编辑daemon.json
+```bash
+vim /etc/docker/daemon.json
+```
+```py
+{
+  "registry-mirrors": ["https://21f73xp7.mirror.aliyuncs.com"],
+  "data-root": "/mnt/data/docker",
+  "storage-driver": "overlay2"
+}
+```
+>`overlay2`来自`docker info`的信息
+### 5.6 显示docker新目录下所有文件
+```bash
+du /mnt/data/docker/
+```
+### 5.7 查看docker信息
+```bash
+docker info
+```
+>Docker Root Dir: /mnt/data/docker<br>
+### 5.8 查看docker镜像信息
+```bash
+docker inspect [image-id]
+```
+>最后看到镜像对应路径为`新路径`
