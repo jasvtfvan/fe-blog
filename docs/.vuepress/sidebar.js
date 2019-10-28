@@ -1,6 +1,5 @@
 module.exports = {
-  '/javascript/curring/': [''],
-  '/javascript/uncurring/': [''],
+  '/javascript/highlights/': [''],
   '/javascript/promise/': [''],
   // '/frame/vue2/source/': [
   //   {

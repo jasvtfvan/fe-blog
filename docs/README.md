@@ -2,7 +2,7 @@
 home: true
 heroImage: /github.png
 actionText: 工厂位置 =>
-actionLink: https://github.com/jasvtfvan/fe-blog/tree/master
+actionLink: https://github.com/jasvtfvan/fe-blog
 features:
 - title: 免责声明
   details: 本项目旨在学习前端架构知识，不可用于商业和个人其他意图。

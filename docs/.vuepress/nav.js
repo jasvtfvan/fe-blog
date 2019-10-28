@@ -5,8 +5,7 @@ module.exports = [
   {
     text: 'javascript',
     items: [
-      { text: '柯里化', link: '/javascript/curring/' },
-      { text: '反柯里化', link: '/javascript/uncurring/' },
+      { text: '精彩集锦', link: '/javascript/highlights/' },
       { text: 'promise', link: '/javascript/promise/' },
     ]
   },
@@ -43,29 +42,10 @@ module.exports = [
     ],
   },
   {
-    text: '外部工具',
+    text: '友情链接',
     items: [
-      {
-        text: '在线编辑',
-        items: [
-          { text: '图片压缩', link: 'https://tinypng.com/' }
-        ]
-      },
-      {
-        text: '在线服务',
-        items: [
-          { text: '阿里云', link: 'https://www.aliyun.com/' },
-          { text: '腾讯云', link: 'https://cloud.tencent.com/' }
-        ]
-      },
-      {
-        text: '博客指南',
-        items: [
-          { text: '掘金', link: 'https://juejin.im/' },
-          { text: 'CSDN', link: 'https://blog.csdn.net/' }
-        ]
-      }
+      { text: '涛神大师兄的微前端', link: 'https://github.com/YataoZhang/my-single-spa' },
+      { text: '王圣松同学的微前端', link: 'https://gitee.com/Janlaywss/vue-single-spa' },
     ]
   },
-  { text: 'github', link: 'https://github.com/jasvtfvan/fe-blog' }
 ];
