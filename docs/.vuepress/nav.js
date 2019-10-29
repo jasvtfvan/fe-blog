@@ -30,6 +30,7 @@ module.exports = [
   {
     text: '服务器',
     items: [
+      { text: 'centOS', link: '/server/centos/mnt' },
       { text: '常规部署', link: '/server/normal/' },
       { text: '持续集成', link: '/server/cicd/' },
       { text: 'gitlab搭建', link: '/server/gitlab/' },
