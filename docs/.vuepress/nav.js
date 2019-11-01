@@ -37,12 +37,6 @@ module.exports = [
     ]
   },
   {
-    text: '系统工具',
-    items: [
-      { text: 'Git', link: '/tools/git/' },
-    ],
-  },
-  {
     text: '友情链接',
     items: [
       { text: '涛神微前端', link: 'https://github.com/YataoZhang/my-single-spa/issues/4' },

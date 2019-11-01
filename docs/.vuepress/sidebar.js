@@ -32,5 +32,4 @@ module.exports = {
   '/server/normal/': [''],
   '/server/cicd/': [''],
   '/server/gitlab/': [''],
-  '/tools/git/': [''],
 };
