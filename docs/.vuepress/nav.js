@@ -30,11 +30,27 @@ module.exports = [
   {
     text: '服务器',
     items: [
-      { text: 'centOS', link: '/server/centos/mnt' },
-      { text: '常规部署', link: '/server/normal/' },
-      { text: '持续集成', link: '/server/cicd/' },
-      { text: 'gitlab搭建', link: '/server/gitlab/' },
-    ]
+      {
+        text: '工具',
+        items: [
+          { text: 'git和git-flow', link: '/server/tools/git/' },
+        ]
+      },
+      {
+        text: '系统',
+        items: [
+          { text: 'centOS', link: '/server/os/centos/mnt' },
+        ]
+      },
+      {
+        text: '部署',
+        items: [
+          { text: '常规部署', link: '/server/deploy/normal/' },
+          { text: '持续集成', link: '/server/deploy/cicd/' },
+          { text: 'gitlab搭建', link: '/server/deploy/gitlab/' },
+        ]
+      },
+    ],
   },
   {
     text: '友情链接',

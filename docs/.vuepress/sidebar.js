@@ -28,8 +28,9 @@ module.exports = {
     '5.render',
     '6.vue-cli',
   ],
-  '/server/centos/': ['mnt'],
-  '/server/normal/': [''],
-  '/server/cicd/': [''],
-  '/server/gitlab/': [''],
+  '/server/tools/git/': [''],
+  '/server/os/centos/': ['mnt'],
+  '/server/deploy/normal/': [''],
+  '/server/deploy/cicd/': [''],
+  '/server/deploy/gitlab/': [''],
 };
