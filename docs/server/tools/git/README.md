@@ -219,7 +219,34 @@ git tag -d <tagName>
 ```bash
 git push origin :refs/tags/<tagName>
 ```
-### 2.8 自定义标签
+### 2.8 工作现场
+`git stash`命令只能用于本地，不能用于远程
+#### 2.8.1 储藏工作现场
+```bash
+git stash
+```
+>在创建紧急`bug`分支前，还有代码尚未提交到版本库，并且工作进行到半路，不希望提交<br>
+>`git status`会发现是干净的，没有尚未提交的代码
+#### 2.8.2 查看列表
+```bash
+git stash list
+```
+>stash@{0}: WIP on dev: f52c633 add merge
+#### 2.8.3 恢复现场，不删除数据
+```bash
+git stash apply
+```
+>后边添加`空格 stash@{0}`指向具体数据
+#### 2.8.4 删除栈顶
+```bansh
+git stash drop
+```
+>后边添加`空格 stash@{0}`指向具体数据
+#### 2.8.5 恢复现场，删除栈顶数据
+```bash
+git stash pop
+```
+### 2.9 自定义标签
 有时为了方便，自定义标签也比较常用，这里举几个简单例子
 ```bash
 git config --global alias.co checkout
@@ -227,6 +254,12 @@ git config --global alias.ci commit
 git config --global alias.br branch
 git config –-global alias.st status
 ```
+### 2.30 避免bug重复劳动
+```bash
+git cherry-pick <commit>
+```
+>在master分支上修复的bug，想要合并到当前dev分支<br>
+>使用该命令，把bug提交的修改“复制”到当前分支，避免重复劳动
 
 ## 3. git-flow
 ### 3.1 git-flow介绍
