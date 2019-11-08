@@ -52,10 +52,4 @@ module.exports = [
       },
     ],
   },
-  {
-    text: '友情链接',
-    items: [
-      { text: '涛神微前端', link: 'https://github.com/YataoZhang/my-single-spa/issues/4' },
-    ]
-  },
 ];
