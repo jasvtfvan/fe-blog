@@ -145,9 +145,10 @@ git remote -v
 ```
 #### 2.4.8 通过远程仓库创建分支
 ```bash
-git pull origin dev
+git fetch origin dev
 git checkout -b dev origin/dev
 ```
+>git pull === git fetch & git merge
 ### 2.5 分支管理
 #### 2.5.1 创建分支
 ```bash
