@@ -176,9 +176,11 @@ git merge develop
 #### 2.5.5 删除分支
 ```bash
 git branch -d feature1
+git push origin -d feature1
 ```
 >`-d`尚未合并抛出异常，合并后放可以删除分支<br>
->`-D`强制删除分支，不要合并就可以删除
+>`-D`强制删除分支，不要合并就可以删除<br>
+>第2条删除远程分支
 ### 2.6 冲突解决
 #### 2.6.1 push操作
 如果远程更新了`file1`，本地修改了`file1`，当执行`push`操作时，会报错并提示
