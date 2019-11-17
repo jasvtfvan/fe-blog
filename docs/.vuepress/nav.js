@@ -5,7 +5,8 @@ module.exports = [
   {
     text: 'javascript',
     items: [
-      { text: '精彩集锦', link: '/javascript/highlights/' },
+      { text: '正则表达式', link: '/javascript/regexp/' },
+      { text: '基础集锦', link: '/javascript/highlights/' },
       { text: 'promise', link: '/javascript/promise/' },
     ]
   },

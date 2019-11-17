@@ -1,4 +1,5 @@
 module.exports = {
+  '/javascript/regexp/': [''],
   '/javascript/highlights/': [''],
   '/javascript/promise/': [''],
   // '/frame/vue2/source/': [
