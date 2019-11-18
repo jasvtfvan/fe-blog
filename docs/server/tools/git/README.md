@@ -169,10 +169,12 @@ git checkout master
 #### 2.5.4 合并分支
 ```bash
 git merge develop
+git merge --no-ff -m "merge with no-ff" dev
 ```
 >已经切换到`master`分支，将`develop`分支内容合并到`master`上<br>
 >默认`fast forward`模式，合并后删除合并痕迹<br>
->加`空格 --on-of`禁用`fast forward`，合并后痕迹保留
+>加`空格 --on-ff`禁用`fast forward`，合并后痕迹保留
+>加`空格 -m`添加备注
 #### 2.5.5 删除分支
 ```bash
 git branch -d feature1
