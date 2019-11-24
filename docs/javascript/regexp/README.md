@@ -228,6 +228,160 @@ multiStr.replace(/^@\d/gm,'-');
 >"a~+2~t~~~"<br>
 >`前方(向尾部方向)`不是数字就替换
 
+## 11. JS对象属性
+* global: 是否全文搜索，默认false
+* ignore case: 是否大小写敏感，默认false
+* multiline: 多行搜索，默认false
+* lastIndex: 当前表达式匹配内容的最后一个字符的下一个位置
+* source: 正则表达式的文本字符串
+```js
+var reg = /\w/;
+console.log(reg.global); // false
+console.log(reg.ignoreCase); // false
+console.log(reg.multiline); // false
+console.log(reg.lastIndex); // 0
+console.log(reg.source); // \w
+```
+```js
+var reg = /\w/gim;
+console.log(reg.global); // true
+console.log(reg.ignoreCase); // true
+console.log(reg.multiline); // true
+console.log(reg.lastIndex); // 0
+console.log(reg.source); // \w
+```
 
+## 12. test和exec方法
+### 12.1 test方法
+* **RegExp.prototype.test(str)**<br>
+测试是否存在，匹配正则表达式的，字符串
+```js
+var reg = /\w/;
+console.log(reg.test('1')); // true
+console.log(reg.test('@')); // false
+```
+#### 12.1.1 非全局调用
+```js
+var reg = /\w/;
+reg.lastIndex; // 0
+reg.test('abc'); // true
+reg.lastIndex; // 0
+reg.test('abc'); // true
+```
+#### 12.1.2 全局调用
+```js
+var reg = /\w/g;
+reg.lastIndex; // 0
+reg.test('abc'); // true
+reg.lastIndex; // 1
+reg.test('abc'); // true
+reg.lastIndex; // 2
+reg.test('abc'); // true
+reg.lastIndex; // 3
+reg.test('abc'); // false
+reg.lastIndex; // 0
+```
 
+### 12.2 exec方法
+* **RegExp.prototype.test(str)**<br>
+* 使用正则表达式，对字符串进行搜索，并更新RegExp全局属性(lastIndex)
+* 如果没有匹配返回null，如果匹配到返回结果数组<br>
+`index`匹配第一个字符的位置<br>
+`input`存放被检索的字符串<br>
+* **返回值规则**
+* 数组的第1个元素：与正则表达式相匹配的文本
+* 数组的第2个元素：与RegExpObject的第1个子表达式相匹配的文本(如果存在)
+* 数组的第3个元素：与RegExpObject的第2个子表达式相匹配的文本(如果存在)
+* 数组的第n个元素: 与RegExpObject的第n个子表达式相匹配的文本(如果存在)
+#### 12.2.1 非全局调用
+```js
+var reg = /\d(\w)(\w)\d/;
+var str = '$1az2bx3cy4dw5ev';
+var ret = reg.exec(str);
+reg.lastIndex; // 0
+ret.index; // 1
+ret.input; // $1az2bx3cy4dw5ev
+ret.toString(); // 1az2,a,z
+```
+#### 12.2.2 全局调用
+```js
+var reg = /\d(\w)(\w)\d/g;
+var str = '$1az2bx3cy4dw5ev';
+var ret = reg.exec(str);
+reg.lastIndex; // 5
+ret.index; // 1
+ret.input; // $1az2bx3cy4dw5ev
+ret.toString(); // 1az2,a,z
+ret = reg.exec(str);
+reg.lastIndex; // 11
+ret.index; // 7
+ret.input; // $1az2bx3cy4dw5ev
+ret.toString(); // 3cy4,c,y
+ret = reg.exec(str);
+ret; // null
+```
+
+## 13. 字符串对象方法
+### 13.1 String.prototype.search(reg)
+* 返回第一个匹配结果index，如果不匹配返回 -1
+* 忽略g，不进行全局搜素，总是从字符串开始位置搜索
+### 13.2 String.prototype.match(reg)
+* 检索字符串，返回一个或多个与regExp匹配的文本
+* regExp是否具有g标志，对结果影响很大
+#### 13.2.1 非全局匹配
+* 只在字符串中进行一次匹配
+* 没有找到，返回null
+* 找到返回数组，存放与它找到的匹配文本有关的信息<br>
+`index`声明匹配文本的起始字符，在字符串中的位置<br>
+`input`声明对string对象对引用<br>
+* **返回值规则**
+* 数组的第1个元素：匹配文本
+* 数组的第2个元素：第1个子表达式相匹配的文本(如果存在)
+* 数组的第3个元素：第2个子表达式相匹配的文本(如果存在)
+* 数组的第n个元素: 第n个子表达式相匹配的文本(如果存在)
+```js
+str.match(reg); // 结果同 12.2.1
+```
+#### 13.2.2 全局匹配
+* 全局搜索，找到字符串中所有匹配字符串
+* 没有找到，返回null
+* 找到返回数组，存放一个或多个匹配字符串<br>
+* 返回结果，没有`index`和`input`属性<br>
+### 13.3 String.prototype.replace
+* String.prototype.replace(str, strReplace)
+* String.prototype.replace(reg, strReplace)
+* String.prototype.replace(reg, function)<br>
+这里只介绍`function`
+```js
+function(match, [group1, group2, ..., groupN,] index, origin)
+```
+```js
+'a1b2c3d4e'.replace(/(\d)(\w)(\d)/g,function(
+  match,group1,group2,group3,index,origin
+){
+  console.log('------------');
+  console.log('match:',match);
+  console.log('index:',index);
+  console.log('group1:',group1);
+  console.log('group2:',group2);
+  console.log('group3:',group3);
+  console.log('ret:',(match+' --> '+group1+group3));
+  return group1+group3;
+});
+// a12c34e
+```
+>------------<br>
+>match: 1b2<br>
+>index: 1<br>
+>group1: 1<br>
+>group2: b<br>
+>group3: 2<br>
+>ret: 1b2 --> 12<br>
+>------------<br>
+>match: 3d4<br>
+>index: 5<br>
+>group1: 3<br>
+>group2: d<br>
+>group3: 4<br>
+>ret: 3d4 --> 34<br>
 
