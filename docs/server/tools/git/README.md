@@ -118,7 +118,7 @@ ssh-add ~/.ssh/id_rsa
 复制`id_rsa.pub`中的内容，添加到`Account setting`中`SSH Keys`页面。
 #### 2.4.2 添加远程仓库
 ```bash
-git add origin 远程仓库地址
+git remote add origin 远程仓库地址
 ```
 #### 2.4.3 首次推送分支到远程仓库
 ```bash
