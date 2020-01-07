@@ -88,6 +88,10 @@ git reset --hard <commit-id>
 ```
 >`HEAD^`表示&lt;commit-id&gt;代表退回到上一版本，`HEAD^^`代表上上版本，`HEAD~`100代表上100版本。<br>
 >&lt;commit-id&gt;也可以是提交的`id`号，也可以是`tag`标签
+```bash
+git push origin HEAD --force
+```
+>撤销远程版本库的提交
 #### 2.3.10 删除版本库
 ```bash
 git rm <file>
