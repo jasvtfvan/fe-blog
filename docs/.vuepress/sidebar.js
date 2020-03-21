@@ -34,4 +34,5 @@ module.exports = {
   '/server/deploy/normal/': [''],
   '/server/deploy/cicd/': [''],
   '/server/deploy/gitlab/': [''],
+  '/server/deploy/docker/': [''],
 };

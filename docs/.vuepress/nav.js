@@ -47,8 +47,9 @@ module.exports = [
         text: '部署',
         items: [
           { text: '常规部署', link: '/server/deploy/normal/' },
-          { text: '持续集成', link: '/server/deploy/cicd/' },
+          { text: 'CI/CD持续集成', link: '/server/deploy/cicd/' },
           { text: 'gitlab搭建', link: '/server/deploy/gitlab/' },
+          { text: 'docker常用容器', link: '/server/deploy/docker/' },
         ]
       },
     ],
