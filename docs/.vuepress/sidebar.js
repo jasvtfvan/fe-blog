@@ -30,7 +30,7 @@ module.exports = {
     '6.vue-cli',
   ],
   '/server/tools/git/': [''],
-  '/server/os/centos/': ['mnt'],
+  '/server/os/centos/': ['mnt','cmd'],
   '/server/deploy/normal/': [''],
   '/server/deploy/cicd/': [''],
   '/server/deploy/gitlab/': [''],

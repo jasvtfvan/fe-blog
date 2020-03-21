@@ -41,6 +41,7 @@ module.exports = [
         text: '系统',
         items: [
           { text: 'centOS', link: '/server/os/centos/mnt' },
+          { text: 'linux常用命令', link: '/server/os/centos/cmd' },
         ]
       },
       {
