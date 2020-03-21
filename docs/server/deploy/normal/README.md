@@ -274,15 +274,15 @@ kill -9 [pid]
 
 ### 2.13 nginx
 `Nginx`是一个高性能的`HTTP`和反向代理服务器
-#### 2.12.1 nginx安装
+#### 2.13.1 nginx安装
 ```bash
 yum install nginx -y
 ```
-#### 2.12.2 nginx命令
+#### 2.13.2 nginx命令
 * 启动nginx: `nginx -c /etc/nginx/nginx.conf`
 * 关闭nginx: `nginx -s stop`
 * 重读配置文件: `nginx -s reload`
-#### 2.12.3 nginx配置
+#### 2.13.3 nginx配置
 * 查看配置文件
 ```bash
 cat /etc/nginx/nginx.conf | grep -v '#'
@@ -316,6 +316,53 @@ server {
 >1, `ps -ef | grep nginx` 得到pid 比如20926<br>
 >2, `vi /run/nginx.pid` 将20926赋值进去<br>
 >3, `nginx -s reload`
+#### 2.13.4 nginx常规配置参考
+```js
+user  nginx;
+worker_processes  1;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  include       mime.types;
+  default_type  application/octet-stream;
+
+  sendfile        on;
+  keepalive_timeout  65;
+
+  server{
+    listen  8090;
+    server_name 0.0.0.0:8090;
+    location / {
+      root /var/opt/nginx/web_dist;
+      index index.html index.htm;
+      try_files $uri $uri/ /index.html;
+    }
+  }
+
+  server{
+    listen  80;
+    server_name 0.0.0.0:80;
+    location / {
+      root /var/opt/nginx;
+      index index.html index.htm;
+      try_files $uri $uri/ /index.html;
+    }
+  }
+}
+```
+* 打包方式
+1. **web_dist** 项目使用绝对路径 (需要配置 8090 这样的端口)
+2. 其他路由使用相对路径<br>
+publicPath: './' （或 publicPath: ''）<br>
+比如 **www** 项目 和 **mobile** 项目
+* 访问地址(部署后最终效果)
+1. http://192.168.3.2 => nginx首页
+2. http://192.168.3.2:8090 => web_dist项目
+3. http://192.168.3.2/www => www项目
+4. http://192.168.3.2/mobile => mobile项目
 
 ## 3. Docker
 * Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的镜像中，然后发布到任何流行的 Linux或Windows 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口
@@ -357,6 +404,21 @@ curl https://download.docker.com/linux/centos/
 ```
 >1. 先请求通docker地址，会返回网页内容<br>
 >2. 然后可以执行`3.2.2`第2行和第3行命令
+#### 3.2.4 其他安装方式参考
+建议使用3.2.2官方提供方式
+```bash
+sudo wget -qO- https://get.docker.com | sh
+```
+* 关键词
+>sudo 给普通用户root权限，便于安装<br>
+>wget 下载命令（常见的curl属于另一种）<br>
+>-q 简化模式，简化太多输出<br>
+>O- 输出依赖，依赖标准模式，不依赖简单文件系统<br>
+>sh 管道，将命令发送给shell，利用shell运行
+* 添加用户到docker组，允许普通用户使用docker
+```bash
+sudo usermod -aG docker <username>
+```
 
 ### 3.3 启动docker
 ```bash
