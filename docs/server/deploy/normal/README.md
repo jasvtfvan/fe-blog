@@ -30,12 +30,36 @@
 * 工具下载 [git bash](https://git-scm.com/downloads)
 * 推荐教程 [Git教程-廖雪峰的官方网站](https://www.liaoxuefeng.com/wiki/896043488029600)
 
-### 2.2 连接服务器
+### 2.2 连接服务器(心跳)
 ```bash
 ssh root@服务器ip
 ```
 * 查看系统版本
 >`lsb_release -a`
+#### 2.2.1 查看客户端ssh配置
+```bash
+cd /etc/ssh
+cat sshd_config | grep -v '#'
+ls -l
+```
+>`cat sshd_config | grep -v '#'`: 查看配置信息<br>
+>`ls -l`: 查看文件权限<br>
+>`-rwxr--r--`: 所有者可读可写可执行，用户所在组只读，其他人只读<br>
+#### 2.2.2 修改文件读写权限
+```bash
+sudo chmod 600 sshd_config
+```
+#### 2.2.3 配置客户端连接检测参数
+如果没有下边的参数，添加到配置文件中
+```bash
+sudo vim /etc/ssh/sshd_config
+```
+```js
+ServerAliveInterval 60
+ServerAliveCountMax 3
+```
+>`ServerAliveInterval 60`: client每隔60秒发送一次请求给server，然后server响应，从而保持连接<br>
+>`ServerAliveCountMax 3`: client发出请求后，服务器端没有响应得次数达到3，就自动断开连接，正常情况下，server不会不响应
 
 ### 2.3 创建非root用户
 ```bash
