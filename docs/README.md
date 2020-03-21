@@ -7,9 +7,9 @@ features:
 - title: 免责声明
   details: 本项目旨在学习前端架构知识，不可用于商业和个人其他意图。
 - title: 内容描述
-  details: 核心知识来自对《珠峰前端架构课》的学习和理解，属于学习笔记类内容。
+  details: 部分知识内容来自对《珠峰前端架构课》的学习和理解。
 - title: 强烈呼吁
-  details: 保护《珠峰培训》的知识产权，营造更优质的学习环境。
+  details: 保护知识产权，营造更优质的学习环境。
 footer: MIT Licensed | Copyright © 2019-present Jasvt Fvan
 ---
 ---

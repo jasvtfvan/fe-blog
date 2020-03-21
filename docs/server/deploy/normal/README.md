@@ -39,20 +39,20 @@ ssh root@服务器ip
 #### 2.2.1 查看客户端ssh配置
 ```bash
 cd /etc/ssh
-cat sshd_config | grep -v '#'
+cat ssh_config | grep -v '#'
 ls -l
 ```
->`cat sshd_config | grep -v '#'`: 查看配置信息<br>
+>`cat ssh_config | grep -v '#'`: 查看配置信息<br>
 >`ls -l`: 查看文件权限<br>
 >`-rwxr--r--`: 所有者可读可写可执行，用户所在组只读，其他人只读<br>
 #### 2.2.2 修改文件读写权限
 ```bash
-sudo chmod 600 sshd_config
+sudo chmod 600 ssh_config
 ```
 #### 2.2.3 配置客户端连接检测参数
-如果没有下边的参数，添加到配置文件中
+如果没有下边的参数，添加到配置文件末尾
 ```bash
-sudo vim /etc/ssh/sshd_config
+sudo vim /etc/ssh/ssh_config
 ```
 ```js
 ServerAliveInterval 60
