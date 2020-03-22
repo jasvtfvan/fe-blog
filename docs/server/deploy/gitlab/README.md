@@ -201,6 +201,23 @@ docker run --detach \
 >`9222`对应容器内部的ssh端口，**注意，22端口仍是ssh端口，而配置文件中的9222用于项目ssh地址**<br>
 >*`9443`对应容器`443`端口，即https服务端口，将在最后https部分具体阐述*
 
+### 3.6 Web IDE 配置方案说明
+*Web IDE 功能的存在，让用户可以只操作web浏览器，就能实现文件的维护*
+* 最终方案:
+1. docker容器内部端口 `443` `22` `80`
+2. docker容器外部端口 `9443` `9222` `80`
+* gitlab.rb 配置
+```
+external_url 'http://服务器ip/gitlab'
+gitlab_rails['gitlab_shell_ssh_port'] = 9222
+```
+>`external_url`: 声明外界http请求的地址，以及WebIDE的地址<br>
+>`gitlab_shell_ssh_port`: 声明外界ssh交互的端口
+* 调试流程及结果:
+1. docker容器内部端口`80` -> docker外部容器端口`9000` -> nginx端口`80` => Web IDE 失效
+2. docker容器内部端口`9000` -> docker外部容器端口`9000` -> nginx端口`80` => Web IDE 失效
+3. docker容器内部端口`80` -> docker外部容器端口`80` -> nginx端口不使用`80` => Web IDE 有效
+
 ## 4. gitlab使用
 ### 4.1 账户创建
 #### 4.1.1 root 用户登录
