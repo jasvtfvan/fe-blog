@@ -134,9 +134,9 @@ Writing superblocks and filesystem accounting information: 完成
 * 磁盘Linux分区，必须挂载到目录树中的，某个具体的目录上，才能进行读写操作
 ### 7.1 查看目录树配置
 ```bash
-cat /etc/fstab | grep -v '#'
+cat /etc/fstab | grep -v ^# | grep -v ^$
 ```
-> | grep -v '#' 隐藏以'#'开头的行
+> | grep -v ^# | grep -v ^$ 隐藏以'#'开头的行，隐藏空行
 ```py
 UUID=11xxxx9e-2xx9-4xx0-bxx3-d77xxxxxx397 /    ext4    defaults    1 1
 ```
@@ -147,7 +147,7 @@ cp /etc/fstab /etc/fstab.bak
 ## 8. 写入新分区信息
 ```bash
 echo '/dev/vdb1  /mnt ext4    defaults    0  0' >> /etc/fstab
-cat /etc/fstab.bak | grep -v '#'
+cat /etc/fstab.bak | grep -v ^# | grep -v ^$
 ```
 ```py
 UUID=11xxxx9e-2xx9-4xx0-bxx3-d77xxxxxx397 /    ext4    defaults    1 1

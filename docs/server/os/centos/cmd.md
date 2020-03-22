@@ -5,8 +5,8 @@
 ls
 * 查看文件内容
 cat fileName
-* 过滤掉`#`查看文件内容
-cat fileName | grep -v '#'
+* 过滤掉`#`,排除空行,查看文件内容
+cat fileName | grep -v ^# | grep -v ^$
 * 删除文件
 rm repurchase-0.0.1.jar
 (yes)

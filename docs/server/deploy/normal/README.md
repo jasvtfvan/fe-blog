@@ -39,10 +39,10 @@ ssh root@服务器ip
 #### 2.2.1 查看客户端ssh配置
 ```bash
 cd /etc/ssh
-cat ssh_config | grep -v '#'
+cat ssh_config | grep -v ^# | grep -v ^$
 ls -l
 ```
->`cat ssh_config | grep -v '#'`: 查看配置信息<br>
+>`cat ssh_config | grep -v ^# | grep -v ^$`: 查看配置信息<br>
 >`ls -l`: 查看文件权限<br>
 >`-rwxr--r--`: 所有者可读可写可执行，用户所在组只读，其他人只读<br>
 #### 2.2.2 修改文件读写权限
@@ -285,9 +285,9 @@ yum install nginx -y
 #### 2.13.3 nginx配置
 * 查看配置文件
 ```bash
-cat /etc/nginx/nginx.conf | grep -v '#'
+cat /etc/nginx/nginx.conf | grep -v ^# | grep -v ^$
 ```
->| grep -v '#' 排除所有 # 开头的行
+>| grep -v ^# | grep -v ^$ 排除所有 # 开头的行，排除所有空行
 * 配置conf
 ```bash
 cd /etc/nginx/conf.d/

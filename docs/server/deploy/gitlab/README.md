@@ -76,9 +76,10 @@ docker inspect gitlab/gitlab-ce
 
 * 创建配置级数据目录
 ```bash
-mkdir -p /srv/gitlab/{config,logs,data}
+mkdir -p /mnt/srv/gitlab/{config,logs,data}
 ```
->srv目录用于存放用户主动生成的数据，可以修改成自己挂载外接硬盘的路径
+>/mnt是挂在硬盘后的目录<br>
+>/srv目录用于存放用户主动生成的数据，一般修改成自己挂载外接硬盘的路径
 
 ### 3.2 首次运行，初始化gitlab
 * 启动容器
@@ -90,9 +91,9 @@ docker run --detach \
   --publish 9000:80 \
   --name gitlab \
   --restart always \
-  -v /srv/gitlab/config:/etc/gitlab \
-  --volume /srv/gitlab/logs:/var/log/gitlab \
-  --volume /srv/gitlab/data:/var/opt/gitlab \
+  -v /mnt/srv/gitlab/config:/etc/gitlab \
+  --volume /mnt/srv/gitlab/logs:/var/log/gitlab \
+  --volume /mnt/srv/gitlab/data:/var/opt/gitlab \
   gitlab/gitlab-ce:latest
 ```
 >9443,9222,9000端口可根据实际情况配置<br>
@@ -118,7 +119,7 @@ docker ps
 打开邮箱->设置->账户，开启 IMAP/SMTP 服务，获取 `授权码`，并将`授权码`复制到电脑文本，请重视 **授权码**
 * 修改gitlab配置文件
 ```bash
-vi /srv/gitlab/config/gitlab.rb
+vi /mnt/srv/gitlab/config/gitlab.rb
 ```
 * 修改下边内容的 `*` 处，然后复制到 gitlab.rb 中
 ```py
@@ -172,10 +173,10 @@ docker rm gitlab
 ```
 * 修改gitlab.rb配置文件
 ```bash
-vi /srv/gitlab/config/gitlab.rb
+vi /mnt/srv/gitlab/config/gitlab.rb
 ```
 ```
-external_url 'http://服务器ip:9000'
+external_url 'http://服务器ip:9000/gitlab'
 gitlab_rails['gitlab_shell_ssh_port'] = 9222
 ```
 >`9000`端口用于http，网站访问的http端口和项目http端口<br>
@@ -189,9 +190,9 @@ docker run --detach \
   --publish 9000:9000 \
   --name gitlab \
   --restart always \
-  -v /srv/gitlab/config:/etc/gitlab \
-  --volume /srv/gitlab/logs:/var/log/gitlab \
-  --volume /srv/gitlab/data:/var/opt/gitlab \
+  -v /mnt/srv/gitlab/config:/etc/gitlab \
+  --volume /mnt/srv/gitlab/logs:/var/log/gitlab \
+  --volume /mnt/srv/gitlab/data:/var/opt/gitlab \
   gitlab/gitlab-ce:latest
 ```
 >`9000`端口处，第一次启动容器：--publish 9000:80 \ <br>
@@ -204,12 +205,12 @@ docker run --detach \
 ### 4.1 账户创建
 #### 4.1.1 root 用户登录
 * 修改root用户邮箱地址<br>
-[http://服务器ip:9000/admin/users/root/edit](http://服务器ip:9000/admin/users/root/edit)
+[http://服务器ip:9000/gitlab/admin/users/root/edit](http://服务器ip:9000/gitlab/admin/users/root/edit)
 >Admin Area(导航栏小扳子) -> Users -> Edit
 * 创建普通用户，输入邮箱<br>
 >自动发送邮箱
 #### 4.1.2 admin可以选择关闭注册功能
-[http://服务器ip:9000/admin/application_settings/general](http://服务器ip:9000/admin/application_settings/general)
+[http://服务器ip:9000/gitlab/admin/application_settings/general](http://服务器ip:9000/gitlab/admin/application_settings/general)
 >Admin Area(导航栏小扳子) -> Settings -> General
 **Sign-up restrictions**<br>
 Sign-up enabled 取消勾选 -> Save changes
@@ -222,7 +223,7 @@ first-demo<br>
 ssh地址<br>
 `git@服务器ip:9222:root/first-demo.git`<br>
 http地址<br>
-`http://服务器ip:9000/root/first-demo.git`
+`http://服务器ip:9000/gitlab/root/first-demo.git`
 
 ### 4.3 本地git配置
 >--global代表全局配置<br>
@@ -280,7 +281,7 @@ ssh-rsa xxx......xx yourEmail@example.com
 #### 4.4.2 配置gitlab服务器ssh公钥/私钥
 * 登录你的账号（非root账号）
 * 头像 -> Settings -> SSH Keys<br>
->或者浏览器地址栏输入 [http://服务器ip:9000/profile/keys](http://服务器ip:9000/profile/keys)
+>或者浏览器地址栏输入 [http://服务器ip:9000/gitlab/profile/keys](http://服务器ip:9000/gitlab/profile/keys)
 * 将公钥复制到Key中，保存
 * 验证ssh是否配置成功
 ```bash
@@ -362,10 +363,10 @@ Admin管理员
 >是否可以创建群组<br>
 >是否外部用户: 外部用户，只有被明确授权，才能访问`内部`和`私有`项目，并且不能创建群组或项目
 #### 5.1.2 功能
-* 查询用户 [http://服务器ip:9000/admin/users](http://服务器ip:9000/admin/users)
-* 创建用户（根据用户分类）[http://服务器ip:9000/admin/users/new](http://服务器ip:9000/admin/users/new)
-* 编辑用户（根据用户分类）[http://服务器ip:9000/admin/users/用户名/edit](http://服务器ip:9000/admin/users/用户名/edit)
-* 删除用户 [http://服务器ip:9000/admin/users](http://服务器ip:9000/admin/users)
+* 查询用户 [http://服务器ip:9000/gitlab/admin/users](http://服务器ip:9000/gitlab/admin/users)
+* 创建用户（根据用户分类）[http://服务器ip:9000/gitlab/admin/users/new](http://服务器ip:9000/gitlab/admin/users/new)
+* 编辑用户（根据用户分类）[http://服务器ip:9000/gitlab/admin/users/用户名/edit](http://服务器ip:9000/gitlab/admin/users/用户名/edit)
+* 删除用户 [http://服务器ip:9000/gitlab/admin/users](http://服务器ip:9000/gitlab/admin/users)
 
 ### 5.2 角色
 #### 5.2.1 角色类型
@@ -386,20 +387,20 @@ Admin管理员
 通过项目配置，已存在的`项目`可以加入`群组`。<br>
 新加入的`项目`namespace不属于当前组。
 #### 5.3.2 功能
-* 创建群组 [http://服务器ip:9000/groups/new](http://服务器ip:9000/groups/new)<br>
+* 创建群组 [http://服务器ip:9000/gitlab/groups/new](http://服务器ip:9000/gitlab/groups/new)<br>
 群组名称 namespace 群组描述 权限<br>
 >`Private` 当前群组 和 群组中的项目，只能成员可见<br>
 `Internal` 当前群组 和 所有 internal 项目，可以被所有登录用户访问<br>
 `Public` 不需要任何授权就可以访问 当前群组 和 所有 public 项目
-* 创建项目 [http://服务器ip:9000/projects/new?namespace_id=Group_Id](http://服务器ip:9000/projects/new?namespace_id=Group_Id)<br>
+* 创建项目 [http://服务器ip:9000/gitlab/projects/new?namespace_id=Group_Id](http://服务器ip:9000/gitlab/projects/new?namespace_id=Group_Id)<br>
 项目名 群组/用户namespace 项目namespace 描述信息<br>
 >`Private`群组只可以创建`Private`项目<br>
 `Internal`群组可以创建`Private`和`Internal`项目<br>
 `Public`群组可以创建`Private`、`Internal`、`Public`项目<br>
-* 添加成员 [http://服务器ip:9000/groups/Group_Namespace/-/group_members](http://服务器ip:9000/groups/Group_Namespace/-/group_members)<br>
+* 添加成员 [http://服务器ip:9000/gitlab/groups/Group_Namespace/-/group_members](http://服务器ip:9000/gitlab/groups/Group_Namespace/-/group_members)<br>
 可以选择成员角色 Guest,Reporter,Developer,Maintainer,Owner (参考`5.3`角色)，并可选过期时间
 #### 5.3.3 角色权限
-[http://服务器ip:9000/help/user/permissions](http://服务器ip:9000/help/user/permissions)
+[http://服务器ip:9000/gitlab/help/user/permissions](http://服务器ip:9000/gitlab/help/user/permissions)
 * 常用权限
 
 | Action                | Gust   | Reporter | Developer | Maintainer | Owner  |
@@ -416,17 +417,17 @@ Admin管理员
 
 ### 5.4 项目
 #### 5.4.1 功能
-* 创建项目 [http://服务器ip:9000/projects/new](http://服务器ip:9000/projects/new)<br>
+* 创建项目 [http://服务器ip:9000/gitlab/projects/new](http://服务器ip:9000/gitlab/projects/new)<br>
 项目名 群组/用户namespace 项目namespace 描述信息<br>
 >`Private`只有被明确授权的用户才能访问项目（添加成员或添加到群组）<br>
 `Internal`当前项目可以任何登录用户访问<br>
 `Public`当前项目可以被所有人访问，无需授权或登录<br>
-* 添加成员 [http://服务器ip:9000/群组或用户namespace/项目名/-/project_members](http://服务器ip:9000/群组或用户namespace/项目名/-/project_members)<br>
+* 添加成员 [http://服务器ip:9000/gitlab/群组或用户namespace/项目名/-/project_members](http://服务器ip:9000/gitlab/群组或用户namespace/项目名/-/project_members)<br>
 可以选择成员角色 Guest,Reporter,Developer,Maintainer (参考`5.3`角色)，并可选过期时间
-* 添加到群组 [http://服务器ip:9000/群组或用户namespace/项目名/-/project_members](http://服务器ip:9000/群组或用户namespace/项目名/-/project_members)<br>
+* 添加到群组 [http://服务器ip:9000/gitlab/群组或用户namespace/项目名/-/project_members](http://服务器ip:9000/gitlab/群组或用户namespace/项目名/-/project_members)<br>
 可选最高权限角色 Guest,Reporter,Developer,Maintainer (参考`5.3`角色)，并可选过期时间
 #### 5.4.2 角色权限
-[http://服务器ip:9000/help/user/permissions](http://服务器ip:9000/help/user/permissions)
+[http://服务器ip:9000/gitlab/help/user/permissions](http://服务器ip:9000/gitlab/help/user/permissions)
 * 常用权限
 
 | Action                | Gust   | Reporter | Developer | Maintainer | Owner  |
