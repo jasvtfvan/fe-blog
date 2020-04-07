@@ -29,28 +29,29 @@ module.exports = [
     ],
   },
   {
-    text: '服务器',
+    text: '工具环境',
     items: [
       {
         text: '工具',
         items: [
-          { text: 'git和git-flow', link: '/server/tools/git/' },
+          { text: 'git/git-flow', link: '/enviroment/tools/git/' },
+          { text: 'node工具', link: '/enviroment/tools/node/' },
         ]
       },
       {
         text: '系统',
         items: [
-          { text: 'centOS', link: '/server/os/centos/mnt' },
-          { text: 'linux常用命令', link: '/server/os/centos/cmd' },
+          { text: 'centOS', link: '/enviroment/os/centos/mnt' },
+          { text: 'linux常用命令', link: '/enviroment/os/centos/cmd' },
         ]
       },
       {
         text: '部署',
         items: [
-          { text: '常规部署', link: '/server/deploy/normal/' },
-          { text: 'CI/CD持续集成', link: '/server/deploy/cicd/' },
-          { text: 'gitlab搭建', link: '/server/deploy/gitlab/' },
-          { text: 'docker常用容器', link: '/server/deploy/docker/' },
+          { text: '常规部署', link: '/enviroment/deploy/normal/' },
+          { text: 'CI/CD持续集成', link: '/enviroment/deploy/cicd/' },
+          { text: 'gitlab搭建', link: '/enviroment/deploy/gitlab/' },
+          { text: 'docker常用容器', link: '/enviroment/deploy/docker/' },
         ]
       },
     ],
