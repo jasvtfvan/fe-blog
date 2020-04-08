@@ -98,6 +98,10 @@ nvm use v12.13.0
 ```
 >切换node的版本
 ```bash
+nvm alias default v12.13.0
+```
+>指定默认node版本
+```bash
 nvm ls-remote
 ```
 >列出所有可以安装的node版本号
