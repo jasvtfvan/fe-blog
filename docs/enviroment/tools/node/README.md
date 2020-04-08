@@ -24,14 +24,17 @@ npm init -y
 npm list -g --depth=0
 ```
 >查看所有已安装的包<br>
->`-g`查看全局，不加`-g`指向当前目录<br>
+>`-g`指向全局，不加`-g`指向当前目录<br>
 >`--depth=0`不显示整棵树，只显示第一层
 ```bash
-npm install -g express
+npm install express --save -dev
 ```
->安装express
+>安装express<br>
+>`--save`和`-dev`同时存在，添加到`package.json`的`devDependencies`中<br>
+>`--save`单独存在，添加到`package.json`的`dependencies`中<br>
+>`-S`等价于`--save`，`-S-D`等价于`--save -dev`
 ```bash
-npm uninstall -g express
+npm uninstall express
 ```
 >卸载express
 ```bash
@@ -39,7 +42,7 @@ npm show express
 ```
 >显示express详情
 ```bash
-npm update -g express
+npm update express
 ```
 >升级express
 ```bash
@@ -117,7 +120,144 @@ nvm uninstall v12.13.0
 ```
 >卸载指定版本号的node
 
-## nrm
-## nodemon
-## pm2
-## yarn
+## 3. nrm
+* npm的镜像源管理工具
+### 3.1 安装
+```bash
+npm i -g nrm
+```
+>全局安装
+### 3.2 常用命令
+```bash
+nrm ls
+```
+>查看所有npm源(`*`指向当前使用源)
+```bash
+nrm use taobao
+```
+>切换npm源
+```bash
+nrm add example https://example.com.cn/
+```
+>添加自定义npm源
+```bash
+nrm del example
+```
+>删除npm源
+
+## 4. nodemon
+* 守护进程执行node脚本
+### 4.1 安装
+```bash
+npm install -g  nodemon
+```
+### 4.2 运行
+```bash
+nodemon server.js
+```
+>守护进程启动`server.js`
+
+## 5. pm2
+* node进程管理工具，相比于nodemon，具备自动重启、负载均衡等功能。
+### 5.1 安装
+```bash
+npm install -g pm2
+```
+### 5.2 常用命令
+```bash
+pm2 start app.js --watch -i 2
+```
+>`start`启动app.js<br>
+>`--watch`监听变化，一旦变化，自动重启<br>
+>`-i 2`启动`2`个实例
+```bash
+pm2 restart app.js
+```
+>重启
+```bash
+pm2 stop app_name|app_id
+```
+>停止【可以先通过pm2 list获取应用的名字（--name指定的）或者进程id】
+```bash
+pm2 stop all
+```
+>停止所有应用
+```bash
+pm2 delete app_name|app_id
+```
+>删除
+```bash
+pm2 stop all
+```
+>关闭并删除所有应用
+```bash
+pm2 list
+```
+>查看进程状态
+
+### 5.3 启动参数
+* --watch：监听应用目录的变化，一旦发生变化，自动重启。如果要精确监听、不见听的目录，最好通过配置文件。
+* -i --instances：启用多少个实例，可用于负载均衡。如果-i 0或者-i max，则根据当前机器核数确定实例数目。
+* --ignore-watch：排除监听的目录/文件，可以是特定的文件名，也可以是正则。比如--ignore-watch="test node_modules "some scripts""
+* -n --name：应用的名称。查看应用信息的时候可以用到。
+* -o --output &#60;path&#62;：标准输出日志文件的路径。
+* -e --error &#60;path&#62;：错误输出日志文件的路径。
+* --interpreter &#60;interpreter&#62;：the interpreter pm2 should use for executing app (bash, python...)。比如你用的coffee script来编写应用。
+
+## 6. yarn
+* yarn可以进行异步node依赖包的安装，并且不局限于node的依赖包管理。
+* 官网: [https://yarn.bootcss.com/](https://yarn.bootcss.com/)
+### 6.1 安装
+* **强力推荐，安装到node全局模块下**<br>
+这样做的好处是，便于维护和升级，不推荐官网提供的`brew安装`<br>
+***当然，如果高级使用，不局限于node，请自行调研安装方式。***
+```bash
+npm install -g yarn
+```
+### 6.2 常用命令
+```bash
+yarn --version
+```
+>查看版本号
+```bash
+yarn init
+```
+>初始化项目
+```bash
+yarn global list
+```
+>查看yarn安装的依赖包<br>
+>`global`是全局参数，不能用`-g`替代
+```bash
+yarn add [package]
+yarn add [package]@[version]
+yarn add [package]@[tag]
+```
+>添加依赖包，相当于`npm install --save`
+```bash
+yarn add [package] --dev
+yarn add [package] --peer
+yarn add [package] --optional
+```
+>不加参数添加到`dependencies`<br>
+>`--dev`添加到`devDependencies`<br>
+>`--peer`添加到`peerDependencies`<br>
+>`--optional`添加到`optionalDependencies`
+```bash
+yarn upgrade [package]
+yarn upgrade [package]@[version]
+yarn upgrade [package]@[tag]
+```
+>升级依赖包
+```bash
+yarn remove [package]
+```
+>移除依赖包
+```bash
+yarn
+```
+>相当于`yarn install`，安装项目全局依赖
+```bash
+which yarn
+```
+>查看`yarn`软链接位置，然后用`ls -al`查看实际位置
