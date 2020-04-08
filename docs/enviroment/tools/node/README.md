@@ -79,6 +79,9 @@ cat ~/.zshrc
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 ```
+```bash
+source ~/.bash_profile
+```
 * 如果未生效，重新开启命令窗口
 ### 2.2 常用命令
 ```bash
