@@ -32,7 +32,7 @@ npm install express --save -dev
 >安装express<br>
 >`--save`和`-dev`同时存在，添加到`package.json`的`devDependencies`中<br>
 >`--save`单独存在，添加到`package.json`的`dependencies`中<br>
->`-S`等价于`--save`，`-S-D`等价于`--save -dev`
+>`-S`等价于`--save`，`-S -D`等价于`--save -dev`
 ```bash
 npm uninstall express
 ```
