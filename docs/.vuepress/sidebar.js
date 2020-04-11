@@ -29,6 +29,9 @@ module.exports = {
     '5.render',
     '6.vue-cli',
   ],
+  '/frame/react16/source/': [
+    'native',
+  ],
   '/enviroment/tools/git/': [''],
   '/enviroment/tools/node/': [''],
   '/enviroment/os/centos/': ['mnt','cmd'],
