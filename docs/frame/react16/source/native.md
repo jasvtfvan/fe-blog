@@ -54,15 +54,6 @@ export default React;
 ```
 ### 1.3. src/react/constants.js
 ```js
-/**
- * 源码中，/shared/ReactTypes中包含
-  | React$Element<any>
-  | ReactPortal
-  | ReactText
-  | ReactFragment
-  | ReactProvider<any>
-  | ReactConsumer<any>;
- */
 export const TEXT = Symbol.for('TEXT');// 文本类型
 export const ELEMENT = Symbol.for('ELEMENT');//React元素类型 button div span 等等
 ```
