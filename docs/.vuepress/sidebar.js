@@ -32,6 +32,7 @@ module.exports = {
   '/frame/react16/source/': [
     'native',
     'class-function',
+    'set-state',
   ],
   '/enviroment/tools/git/': [''],
   '/enviroment/tools/node/': [''],
