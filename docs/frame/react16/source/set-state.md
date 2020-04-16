@@ -614,4 +614,551 @@ force
 4
 ```
 
+## 4. 替换相同类型
+### 4.1. src/index.js
+```js {9-17}
+import React from './react';
+import ReactDOM from './react-dom';
+class Counter extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { number: 0 };
+  }
+  handleClick = () => {
+    this.setState((state) => ({ number: state.number + 1 }));
+  }
+  render() {
+    return (
+      <div id={'counter' + this.state.number}>
+        <p>{this.state.number}</p>
+        <button onClick={this.handleClick}>+</button>
+      </div>
+    )
+  }
+}
+ReactDOM.render(
+  <Counter />,
+  document.getElementById('root')
+);
+```
+### 4.2. src/react/vdom.js
+```js {2,16-18,22-36}
+import { TEXT, ELEMENT, CLASS_COMPONENT, FUNCTION_COMPONENT } from './constants';
+import { setProps, onlyOne, flatten, patchProps } from './utils';
+
+export function compareTwoElements(oldRenderElement, newRenderElement) {
+  oldRenderElement = onlyOne(oldRenderElement);
+  newRenderElement = onlyOne(newRenderElement);
+  let currentDOM = oldRenderElement.dom;//取出老的DOM节点（此处，element.dom = dom;已经做过预埋设计）
+  let currentElement = oldRenderElement;
+  if (newRenderElement == null) {
+    currentDOM.parentNode.removeChild(currentDOM);//新的虚拟DOM为null，删掉老节点
+    currentDOM = null;
+  } else if (oldRenderElement.type != newRenderElement.type) { // span div function class
+    let newDOM = createDOM(newRenderElement);//类型不同，新节点替换老节点
+    currentDOM.parentNode.replaceChild(newDOM, currentDOM);
+    currentElement = newRenderElement;
+  } else {
+    //新老节点都存在，类型一样。进行 dom-diff 深度比较，比较他们的属性和子节点，并尽可能复用老节点
+    updateElement(oldRenderElement, newRenderElement);
+  }
+  return currentElement;
+}
+// *** 如果是`函数组件`或`类组件`,`oldElement`就是`oldRenderElement`
+// renderElement 是函数组件执行后 或 类组件调用render后返回的虚拟DOM，虚拟DOM是由React.createElement创建的
+function updateElement(oldElement, newElement) {
+  let currentDOM = newElement.dom = oldElement.dom;
+  if (oldElement.$$typeof === TEXT && newElement.$$typeof === TEXT) {
+    if (oldElement.content !== newElement.content) {
+      currentDOM.textContent = newElement.content;
+    }
+  } else if (oldElement.$$typeof === ELEMENT) {// div span p
+    updateDOMProperties(currentDOM, oldElement.props, newElement.props);
+  }
+}
+function updateDOMProperties(dom, oldProps, newProps) {
+  patchProps(dom, oldProps, newProps);
+}
+
+export function createDOM(element) {
+  if (typeof element !== 'object') {
+    throw Error(`Uncaught DOMException: Failed to execute 'createElement' on 'Document': The tag name provided ('${element}') is not a valid name.`)
+  }
+  /**
+   * !!! element 如果是字符串或者数字，已经在迭代`children`时封装成对象
+   * 因此`createDOM`方法可以整体进行改造
+   */
+  let dom;
+  element = onlyOne(element); // 如果是数组，只取第一个
+  let { $$typeof } = element;
+  if (!$$typeof) { // 字符串或者数字
+    dom = document.createTextNode(element);
+  } else if ($$typeof == TEXT) {
+    dom = document.createTextNode(element.content);
+  } else if ($$typeof == ELEMENT) { // 原生DOM节点
+    dom = createNativeDOM(element);
+  } else if ($$typeof == FUNCTION_COMPONENT) { // 函数组件
+    dom = createFunctionComponentDOM(element);
+  } else if ($$typeof == CLASS_COMPONENT) { // 类组件
+    dom = createClassComponentDOM(element);
+  }
+  /**
+   * `element`是ReactElement创建出来的虚拟DOM，让虚拟的DOM的`dom`属性指向真实DOM
+   * 这里是一个预埋设计，或者叫铺垫，通过虚拟DOM能够获取真实DOM
+   */
+  element.dom = dom;
+  return dom;
+}
+// 创建函数组件真实的DOM对象
+function createFunctionComponentDOM(element) {
+  //element: $$typeof, type, key, ref, props
+  let { type, props } = element;
+  /**
+   * function FunctionComponent(props) {
+   *   return React.createElement('div', { id: 'counter' }, 'hello');
+   * }
+   */
+  let renderElement = type(props);// type === FunctionComponent
+  //element 是 React.createElement(FunctionComponent, config, children); 的返回值
+  //element 是 FunctionComponent 的父级，当然这里不是DOM的父级，只是理解为父级
+  element.renderElement = renderElement; // 这里也是一个预埋设计
+  let dom = createDOM(renderElement);
+  return dom;
+  // 第25行`element.dom = dom;`，可以推导出: element.renderElement.dom=真实DOM
+}
+// 创建类组件真实的DOM对象
+function createClassComponentDOM(element) {
+  let { type, props } = element;
+  /**
+   * class ClassCounter extends React.Component {
+   *   constructor(props) {
+   *     super(props);
+   *   }
+   *   render() {
+   *     return React.createElement('div', { id: 'counter' }, 'hello');
+   *   }
+   * }
+   */
+  let componentInstance = new type(props);
+  element.componentInstance = componentInstance; // 这里也是一个预埋设计
+  let renderElement = componentInstance.render();
+  componentInstance.renderElement = renderElement; // 这里也是一个预埋设计
+  let dom = createDOM(renderElement);
+  return dom;
+  // 第25行`element.dom = dom;`，可以推导出: element.componentInstance.renderElement.dom=真实DOM
+}
+/**
+let element = React.createElement('button',
+  { id: 'sayHello', onClick },
+  'say', React.createElement('span', { onClick: spanClick, style: { color: 'red' } }, 'Hello')
+);
+ */
+function createNativeDOM(element) {
+  let { type, props } = element; // div button span
+  let dom = document.createElement(type); //真实DOM对象
+  //1，创建虚拟dom的子节点
+  createNativeDOMChildren(dom, element.props.children);
+  //2，给DOM元素添加属性
+  setProps(dom, props);
+  return dom;
+}
+function createNativeDOMChildren(parentNode, ...children) {
+  let childrenNodeArr = children && flatten(children);
+  if (childrenNodeArr) {
+    for (let i = 0; i < childrenNodeArr.length; i++) {
+      let child = childrenNodeArr[i];
+      /**
+       * !!! 由于需要通过 element 获取 dom 元素，此处将 字符串或者数字 封装成对象
+       */
+      if (typeof child !== 'object') { // 字符串或数字
+        child = childrenNodeArr[i] = { $$typeof: TEXT, type: TEXT, content: child };
+      }
+      //child会传递给element，预埋设计，跟第25行`element.dom = dom;`逻辑一样，给element添加索引
+      child._mountIndex = i;
+      let childDOM = createDOM(child);
+      parentNode.appendChild(childDOM);
+    }
+  }
+}
+
+export function ReactElement($$typeof, type, key, ref, props) {
+  let element = {
+    $$typeof, type, key, ref, props
+  };
+  return element;
+}
+```
+>在`updateElement`方法中:<br>
+>如果是`函数组件`或`类组件`,`oldElement`就是`oldRenderElement`,<br>
+>`renderElement`是函数组件执行后 或 类组件调用`render`后返回的虚拟DOM,<br>
+>虚拟DOM是由`React.createElement`创建的.
+### 4.3. src/react/utils.js
+```js {11-27}
+import { addEvent } from './event';
+
+export function setProps(dom, props) {
+  for (let key in props) {
+    if (key != 'children') {
+      let value = props[key];
+      setProp(dom, key, value);
+    }
+  }
+}
+//老有新没有=>删除  老有新有=>更新  老没有新有=>添加
+export function patchProps(dom, oldProps, newProps) {
+  //1,删除老有新没有
+  for (const key in oldProps) {
+    if (key !== 'children') {//children单独处理
+      if (!newProps.hasOwnProperty(key)) {
+        dom.removeAttribute(key);//新的不存在,删除
+      }
+    }
+  }
+  //2,新增及更新,新有
+  for (let key in newProps) {
+    if (key !== 'children') {//children单独处理
+      setProp(dom, key, newProps[key]);
+    }
+  }
+}
+function setProp(dom, key, value) {
+  if (/^on/.test(key)) {
+    addEvent(dom, key, value);
+  } else if (key === 'style') {
+    for (const styleName in value) {
+      dom.style[styleName] = value[styleName];
+    }
+  } else {
+    dom.setAttribute(key, value);
+  }
+}
+
+export function onlyOne(obj) {
+  return Array.isArray(obj) ? obj[0] : obj;
+}
+
+// 打平任意多维数组，避免深度克隆
+export function flatten(arr) {
+  return arr.reduce((prev, curr, index) => {
+    if (Array.isArray(curr)) {
+      prev = prev.concat(flatten(curr));
+    } else {
+      prev = prev.concat(curr);
+    }
+    return prev;
+  }, []);
+}
+```
+### 4.4. src/react/event.js
+```js {53-64,68}
+import { updateQueue } from './component';
+
+/**
+ * React通过，类似于`事件委托`机制，将事件绑定到document上；
+ * 并把事件回调函数，以`eventStore`的形式，挂载到对应的真实DOM上
+ * @param {*} dom 要绑定事件的DOM节点
+ * @param {*} eventType 事件类型 onClick
+ * @param {*} listener 事件处理函数
+ */
+export function addEvent(dom, eventType, listener) {
+  eventType = eventType.toLowerCase(); // onClick 作为key，转换成 onclick
+  //在要绑定的DOM节点上挂载一个对象，准备存放监听函数
+  let eventStore = dom.eventStore || (dom.eventStore = {});
+  //eventStore.onClick = () => {console.log('this is onClick')}
+  eventStore[eventType] = listener;
+  /**
+   * 这里可以做兼容处理，比如兼容IE、Chrome、Firefox等等
+   */
+  // true是捕获阶段，处理事件； false是冒泡阶段，处理事件
+  document.addEventListener(eventType.slice(2), dispatchEvent, false);
+}
+
+let syntheticEvent;//合成对象，可以复用，减少垃圾回收，提高性能
+function dispatchEvent(event) {
+  let { type, target } = event;//type->click target->button
+  let eventType = 'on' + type; //onclick
+  syntheticEvent = getSyntheticEvent(event);
+  //事件监听函数执行之前，进入批量更新模式
+  updateQueue.isPending = true;
+  // 模拟冒泡过程
+  while (target) {
+    let { eventStore } = target;
+    let listener = eventStore && eventStore[eventType];//onClick
+    if (listener) {
+      listener.call(target, syntheticEvent);
+    }
+    target = target.parentNode;
+  }
+  //所有监听函数执行完毕，清掉所有属性
+  for (const key in syntheticEvent) {
+    if (syntheticEvent.hasOwnProperty(key)) {
+      delete syntheticEvent[key];
+    }
+  }
+  //事件处理函数执行完成，关掉批量更新模式
+  updateQueue.isPending = false;
+  //执行批量更新，把缓存的updater全部执行
+  updateQueue.batchUpdate();
+}
+//如果执行了persist，就让syntheticEvent指向新对象
+function persist() {
+  syntheticEvent = {};
+  /**
+   * 下一行写法错误:
+   * 根据原型链: obj.__proto__ 指向 Object.prototype;
+   * 如果 obj.__proto__.abc = abc 等价于 Object.prototype.abc = abc;
+   * 这是具有破坏性的,这样执行后每个 Object() 实力对象，都将具有 __proto__ 都具有了 abc 属性;
+   * for (key in obj) {
+   *   console.log(key); // abc
+   * }
+   * 该for循环说明了,for in,可以找到在__proto__上自定义的属性。（用浏览器观察__proto__时,会发现自定义属性颜色更鲜艳）
+   */
+  // syntheticEvent.__proto__.persist = persist;
+  Object.setPrototypeOf(syntheticEvent, { persist }); //等价于 syntheticEvent.__proto__ = { persist };
+}
+function getSyntheticEvent(nativeEvent) {
+  if (!syntheticEvent) {
+    persist();
+  }
+  syntheticEvent.nativeEvent = nativeEvent;
+  syntheticEvent.currentTarget = nativeEvent.target;
+  //把原生事件对象上的方法和属性都拷贝到合成对象上
+  for (let key in nativeEvent) {
+    if (typeof nativeEvent[key] === 'function') {
+      syntheticEvent[key] = nativeEvent[key].bind(nativeEvent); //绑定this
+    } else {
+      syntheticEvent[key] = nativeEvent[key];
+    }
+  }
+  return syntheticEvent;
+}
+```
+>原型链的错误写法分析:<br>
+>错误写法:`syntheticEvent.__proto__.persist = persist;`<br>
+>原理说明:<br>
+>>1. `var obj = {}; obj.__proto__ === Object.prototype;//true`<br>
+>>2. `obj.__proto__.abc = function abc(){};` => `Object.prototype.abc === abc;`<br>
+>>3. 这样是具有破坏性的，这样执行后，每个`Object`的实例对象的`__proto__`都具有了`abc`属性<br>
+>>4. `for (key in obj) {`<br>
+>>`console.log(key);//abc`<br>
+>>`}`<br>
+>>5. 该for循环说明了,`for in`,可以找到在`__proto__`上自定义的属性
+>>6. 用浏览器观察`__proto__`时,会发现自定义属性颜色更鲜艳
+## 5. 类组件与函数组件
+### 5.1. src/index.js
+```js {3-21,32-40,44}
+import React from './react';
+import ReactDOM from './react-dom';
+//有两个虚拟DOM   <FunctionCounter/> <div id={'counter'}/>
+function FunctionCounter(props) {
+  return (
+    <div id={'counter' + props.number}  >
+      <p>{props.number}</p>
+      <button onClick={props.handleClick}>+</button>
+    </div>
+  )
+}
+class ClassCounter extends React.Component {
+  render() {
+    return (
+      <div id={'counter' + this.props.number}  >
+        <p>{this.props.number}</p>
+        <button onClick={this.props.handleClick}>+</button>
+      </div>
+    )
+  }
+}
+class Counter extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { number: 0 };
+  }
+  handleClick = () => {
+    this.setState((state) => ({ number: state.number + 1 }));
+  }
+  render() {
+    return (
+      /*
+      <div id={'counter' + this.state.number}  >
+         <p > {this.state.number}</p>
+         <button onClick={this.handleClick}>+</button>
+       </div>
+       */
+      <FunctionCounter number={this.state.number} handleClick={this.handleClick} />
+      //<ClassCounter number={this.state.number} handleClick={this.handleClick} />
+      //React.createElement(ClassCounter, { number: this.state.number, handleClick: this.handleClick })
+    )
+  }
+}
+//{type:FunctionCounter,props:{number:0}}
+ReactDOM.render(
+  <Counter />,
+  document.getElementById('root')
+);
+```
+### 5.2. src/react/vdom.js
+```js {32-35,41-54}
+import { TEXT, ELEMENT, CLASS_COMPONENT, FUNCTION_COMPONENT } from './constants';
+import { setProps, onlyOne, flatten, patchProps } from './utils';
+
+export function compareTwoElements(oldRenderElement, newRenderElement) {
+  oldRenderElement = onlyOne(oldRenderElement);
+  newRenderElement = onlyOne(newRenderElement);
+  let currentDOM = oldRenderElement.dom;//取出老的DOM节点（此处，element.dom = dom;已经做过预埋设计）
+  let currentElement = oldRenderElement;
+  if (newRenderElement == null) {
+    currentDOM.parentNode.removeChild(currentDOM);//新的虚拟DOM为null，删掉老节点
+    currentDOM = null;
+  } else if (oldRenderElement.type != newRenderElement.type) { // span div function class
+    let newDOM = createDOM(newRenderElement);//类型不同，新节点替换老节点
+    currentDOM.parentNode.replaceChild(newDOM, currentDOM);
+    currentElement = newRenderElement;
+  } else {
+    //新老节点都存在，类型一样。进行 dom-diff 深度比较，比较他们的属性和子节点，并尽可能复用老节点
+    updateElement(oldRenderElement, newRenderElement);
+  }
+  return currentElement;
+}
+// *** 如果是`函数组件`或`类组件`,`oldElement`就是`oldRenderElement`
+// renderElement 是函数组件执行后 或 类组件调用render后返回的虚拟DOM，虚拟DOM是由React.createElement创建的
+function updateElement(oldElement, newElement) {
+  let currentDOM = newElement.dom = oldElement.dom;
+  if (oldElement.$$typeof === TEXT && newElement.$$typeof === TEXT) {
+    if (oldElement.content !== newElement.content) {
+      currentDOM.textContent = newElement.content;
+    }
+  } else if (oldElement.$$typeof === ELEMENT) {// div span p
+    updateDOMProperties(currentDOM, oldElement.props, newElement.props);
+  } else if (oldElement.$$typeof === FUNCTION_COMPONENT) {// 函数组件
+    updateFunctionComponent(oldElement, newElement);
+  } else if (oldElement.$$typeof === CLASS_COMPONENT) {// 类组件
+    updateClassComponent(oldElement, newElement);
+  }
+}
+function updateDOMProperties(dom, oldProps, newProps) {
+  patchProps(dom, oldProps, newProps);
+}
+//类组件element.componentInstance.renderElement.dom=真实DOM
+function updateClassComponent(oldElement, newElement) {
+  let componentInstance = oldElement.componentInstance;
+  let updater = componentInstance.$updater;
+  let nextProps = newElement.props;
+  updater.emitUpdate(nextProps);
+}
+//函数组件element.renderElement.dom=真实DOM
+function updateFunctionComponent(oldElement, newElement) {
+  let oldRenderElement = oldElement.renderElement;
+  let newRenderElement = newElement.type(newElement.props);
+  let currentDOM = compareTwoElements(oldRenderElement, newRenderElement);
+  newElement.renderElement = currentDOM;//更新之后，重新挂载
+}
+
+export function createDOM(element) {
+  if (typeof element !== 'object') {
+    throw Error(`Uncaught DOMException: Failed to execute 'createElement' on 'Document': The tag name provided ('${element}') is not a valid name.`)
+  }
+  /**
+   * !!! element 如果是字符串或者数字，已经在迭代`children`时封装成对象
+   * 因此`createDOM`方法可以整体进行改造
+   */
+  let dom;
+  element = onlyOne(element); // 如果是数组，只取第一个
+  let { $$typeof } = element;
+  if (!$$typeof) { // 字符串或者数字
+    dom = document.createTextNode(element);
+  } else if ($$typeof == TEXT) {
+    dom = document.createTextNode(element.content);
+  } else if ($$typeof == ELEMENT) { // 原生DOM节点
+    dom = createNativeDOM(element);
+  } else if ($$typeof == FUNCTION_COMPONENT) { // 函数组件
+    dom = createFunctionComponentDOM(element);
+  } else if ($$typeof == CLASS_COMPONENT) { // 类组件
+    dom = createClassComponentDOM(element);
+  }
+  /**
+   * `element`是ReactElement创建出来的虚拟DOM，让虚拟的DOM的`dom`属性指向真实DOM
+   * 这里是一个预埋设计，或者叫铺垫，通过虚拟DOM能够获取真实DOM
+   */
+  element.dom = dom;
+  return dom;
+}
+// 创建函数组件真实的DOM对象
+function createFunctionComponentDOM(element) {
+  //element: $$typeof, type, key, ref, props
+  let { type, props } = element;
+  /**
+   * function FunctionComponent(props) {
+   *   return React.createElement('div', { id: 'counter' }, 'hello');
+   * }
+   */
+  let renderElement = type(props);// type === FunctionComponent
+  //element 是 React.createElement(FunctionComponent, config, children); 的返回值
+  //element 是 FunctionComponent 的父级，当然这里不是DOM的父级，只是理解为父级
+  element.renderElement = renderElement; // 这里也是一个预埋设计
+  let dom = createDOM(renderElement);
+  return dom;
+  // 第25行`element.dom = dom;`，可以推导出: element.renderElement.dom=真实DOM
+}
+// 创建类组件真实的DOM对象
+function createClassComponentDOM(element) {
+  let { type, props } = element;
+  /**
+   * class ClassCounter extends React.Component {
+   *   constructor(props) {
+   *     super(props);
+   *   }
+   *   render() {
+   *     return React.createElement('div', { id: 'counter' }, 'hello');
+   *   }
+   * }
+   */
+  let componentInstance = new type(props);
+  element.componentInstance = componentInstance; // 这里也是一个预埋设计
+  let renderElement = componentInstance.render();
+  componentInstance.renderElement = renderElement; // 这里也是一个预埋设计
+  let dom = createDOM(renderElement);
+  return dom;
+  // 第25行`element.dom = dom;`，可以推导出: element.componentInstance.renderElement.dom=真实DOM
+}
+/**
+let element = React.createElement('button',
+  { id: 'sayHello', onClick },
+  'say', React.createElement('span', { onClick: spanClick, style: { color: 'red' } }, 'Hello')
+);
+ */
+function createNativeDOM(element) {
+  let { type, props } = element; // div button span
+  let dom = document.createElement(type); //真实DOM对象
+  //1，创建虚拟dom的子节点
+  createNativeDOMChildren(dom, element.props.children);
+  //2，给DOM元素添加属性
+  setProps(dom, props);
+  return dom;
+}
+function createNativeDOMChildren(parentNode, ...children) {
+  let childrenNodeArr = children && flatten(children);
+  if (childrenNodeArr) {
+    for (let i = 0; i < childrenNodeArr.length; i++) {
+      let child = childrenNodeArr[i];
+      /**
+       * !!! 由于需要通过 element 获取 dom 元素，此处将 字符串或者数字 封装成对象
+       */
+      if (typeof child !== 'object') { // 字符串或数字
+        child = childrenNodeArr[i] = { $$typeof: TEXT, type: TEXT, content: child };
+      }
+      //child会传递给element，预埋设计，跟第25行`element.dom = dom;`逻辑一样，给element添加索引
+      child._mountIndex = i;
+      let childDOM = createDOM(child);
+      parentNode.appendChild(childDOM);
+    }
+  }
+}
+
+export function ReactElement($$typeof, type, key, ref, props) {
+  let element = {
+    $$typeof, type, key, ref, props
+  };
+  return element;
+}
+```
 
