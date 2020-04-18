@@ -33,6 +33,7 @@ module.exports = {
     'native',
     'class-function',
     'set-state',
+    'dom-diff',
   ],
   '/enviroment/tools/git/': [''],
   '/enviroment/tools/node/': [''],
