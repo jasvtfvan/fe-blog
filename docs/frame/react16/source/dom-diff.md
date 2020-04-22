@@ -760,9 +760,3 @@ export function ReactElement($$typeof, type, key, ref, props) {
 ![./images/dom-diff-patch-4.png](./images/dom-diff-patch-4.png)
 ![./images/dom-diff-patch-5.png](./images/dom-diff-patch-5.png)
 ![./images/dom-diff-patch-6.png](./images/dom-diff-patch-6.png)
-
-
-
-
-
-
