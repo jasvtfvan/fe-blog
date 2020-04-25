@@ -1,9 +1,10 @@
 # 渲染原生组件
 
 * **该文介绍前提，已经通过`create-react-app`初始化项目。**
-* **由于`React`本身也是不断演化出来的产品，因此该文的源码跟官方不完全一致。**
-* **意义在于核心思想、大部分核心写法，跟官方`react16`大体一致，便于理解分析`React`源码。**
+* **由于`React`本身也是不断演化出来的产品，因此该文的源码跟官方并不完全一致。**
+* **意义在于核心思想跟`react16`大体一致，以便于理解分析`React`源码。**
 * **该文是一个演化的过程，重点在于，如何一步步演化推导出`react16`**
+* **该文截止至context，都是`react15`的实现，之后是基于`fiber`的`react16`实现**
 
 ## 1. React.createElement
 ### 1.1. src/index.js
@@ -71,6 +72,7 @@ export function ReactElement($$typeof, type, key, ref, props) {
 ![./images/element.png](./images/element.png)
 * 改写结构如下图:<br>
 ![./images/element-1.png](./images/element-1.png)
+* **当阅读到dom-diff，设计的结构跟官方会不一样，为了方便dom比对**
 
 ## 2. ReactDom.render
 ### 2.1. src/index.js

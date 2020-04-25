@@ -36,7 +36,6 @@ module.exports = {
     'dom-diff',
     'life-cycle',
     'context',
-    'example-patch',
   ],
   '/enviroment/tools/git/': [''],
   '/enviroment/tools/node/': [''],
