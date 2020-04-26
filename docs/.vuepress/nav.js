@@ -23,7 +23,8 @@ module.exports = [
       {
         text: 'react',
         items: [
-          { text: '框架源码', link: '/frame/react16/source/native' },
+          { text: 'react15源码', link: '/frame/react15/source/native' },
+          { text: 'react16源码', link: '/frame/react16/source/fiber' },
         ],
       }
     ],

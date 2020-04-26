@@ -29,7 +29,7 @@ module.exports = {
     '5.render',
     '6.vue-cli',
   ],
-  '/frame/react16/source/': [
+  '/frame/react15/source/': [
     'native',
     'class-function',
     'set-state',
@@ -37,6 +37,9 @@ module.exports = {
     'life-cycle',
     'context',
     'react15',
+  ],
+  '/frame/react16/source/': [
+    'fiber',
   ],
   '/enviroment/tools/git/': [''],
   '/enviroment/tools/node/': [''],
