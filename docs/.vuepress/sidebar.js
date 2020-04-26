@@ -36,6 +36,7 @@ module.exports = {
     'dom-diff',
     'life-cycle',
     'context',
+    'react15',
   ],
   '/enviroment/tools/git/': [''],
   '/enviroment/tools/node/': [''],
