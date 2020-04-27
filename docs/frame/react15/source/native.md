@@ -66,9 +66,9 @@ export function ReactElement($$typeof, type, key, ref, props) {
 }
 ```
 ### 1.5 测试效果
-* 官方结构如下图:<br>
+* 官方结构如下图:
 ![./images/element.png](./images/element.png)
-* 改写结构如下图:<br>
+* 改写结构如下图:
 ![./images/element-1.png](./images/element-1.png)
 * **当阅读到dom-diff，设计的结构跟官方会不一样，为了方便dom比对**
 
@@ -163,7 +163,7 @@ function setProp(dom, key, value) {
 }
 ```
 ### 2.4. 测试效果
-* 页面渲染效果如下图<br>
+* 页面渲染效果如下图:
 ![./images/dom-render.png](./images/dom-render.png)
 
 ## 3. event事件
@@ -282,17 +282,17 @@ function getSyntheticEvent(nativeEvent){
 }
 ```
 ### 3.4. 测试效果
-3.4.1. 不调用`persist()`，控制台效果如下图<br>
+3.4.1. 不调用`persist()`，控制台效果如下图:
 ![./images/none-persist.png](./images/none-persist.png)
-3.4.2. 调用`persist()`<br>
+3.4.2. 调用`persist()`，控制台效果如下图:
 修改`src/index.js`的第8行，将注释放开
 ```js
 syntheticEvent.persist();
 ```
-控制台效果如下图<br>
+控制台效果如下图:
 ![./images/persist.png](./images/persist.png)
 ### 3.5. 浏览器的`捕获`和`冒泡`
-* 首先要理解`捕获`和`冒泡`的浏览器事件，如下图<br>
+* 首先要理解`捕获`和`冒泡`的浏览器事件，如下图:
 ![./images/window-event.png](./images/window-event.png)
 * 用`MouseEvent`点击事件举例说明:<br>
 1，目标元素是`div`，先走捕获，再走冒泡<br>
