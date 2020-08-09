@@ -48,4 +48,16 @@ module.exports = {
   '/enviroment/deploy/cicd/': [''],
   '/enviroment/deploy/gitlab/': [''],
   '/enviroment/deploy/docker/': [''],
+  '/enviroment/deploy/cicd-pro/': [
+    'cicd',
+    'docker',
+    'jenkins',
+    'gitlab',
+    'nginx',
+    'jenkins-gitlab',
+    'nexus',
+    'jenkins-nexus',
+    'ansible',
+    'jenkins-nexus-ansible',
+  ],
 };

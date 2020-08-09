@@ -50,9 +50,10 @@ module.exports = [
         text: '部署',
         items: [
           { text: '常规部署', link: '/enviroment/deploy/normal/' },
-          { text: 'CI/CD持续集成', link: '/enviroment/deploy/cicd/' },
+          { text: 'CI/CD', link: '/enviroment/deploy/cicd/' },
           { text: 'gitlab搭建', link: '/enviroment/deploy/gitlab/' },
           { text: 'docker常用容器', link: '/enviroment/deploy/docker/' },
+          { text: 'CI/CD综合', link: '/enviroment/deploy/cicd-pro/cicd' },
         ]
       },
     ],
