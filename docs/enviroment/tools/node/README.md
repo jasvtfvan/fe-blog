@@ -261,3 +261,64 @@ yarn
 which yarn
 ```
 >查看`yarn`软链接位置，然后用`ls -al`查看实际位置
+
+## 7. gnvm-windows
+对于windows系统的版本管理，有`nvm-windows`和`gnvm`等<br/>
+**建议使用`gnvm`，简单绿色方便**<br/>
+而`nvm-windows`亲测，有的电脑环境配置后，无法识别`node`命令.
+
+### 环境安装
+**过程: &nbsp; 安装node => node环境变量 => 下载gnvm => 移动gnvm.exe => 安装其他版本**<br/>
+
+#### 1. 安装`node.js`<br/>
+1.1. 下载地址 [https://nodejs.org/en/download/](https://nodejs.org/en/download/)<br/>
+1.2. msi文件安装或者zip包解压<br/>
+1.3. 安装至`D:\nodejs\`<br/>
+1.4. 在`D:\nodejs\`下，创建文件夹`node_global`和`node_cache`<br/>
+1.5. 在`D:\nodejs\`目录窗口地址栏，输入`CMD`<br/>
+```bash
+npm config set prefix "D:\nodejs\node_global"
+npm config set cache "D:\nodejs\node_cache"
+```
+1.6. 设置环境变量：我的电脑->右键->属性->高级系统设置->高级->环境变量
+* 设置用户变量`PATH`添加`D:\nodejs\node_global`
+* 设置系统变量`NODE_PATH``D:\nodejs\node_global\node_modules`
+* 设置系统变量`PATH`添加`D:\nodejs`
+
+#### 2. 安装gnvm
+2.1. 下载 [http://ksria.com/gnvm/?lang=zh-cn#download](http://ksria.com/gnvm/?lang=zh-cn#download)<br/>
+2.2. 把`gnvm.exe`放到`D:\nodejs\`目录下
+
+#### 3. 安装其他版本`node`
+3.1. 更换更快的库 registry
+>`gnvm.exe` 内建了 `DEFAULT` and `TAOBAO` 两个库。
+```bash
+gnvm config registry TAOBAO
+```
+3.2. 在`D:\nodejs\`目录窗口地址栏，输入`CMD`<br/>
+3.3. 执行`gnvm install 8.2.1`安装`node v8.2.1`
+
+#### 4. 观察目录变化
+观察`D:\nodejs\`目录
+>如果第一步安装的是`node v12.8.0`，刚开始目录中没有`v12.8.0`文件夹<br/>
+>安装完`node v8.2.1`之后，目录中出现两个文件夹`v8.2.1`和`v12.8.0`
+
+### 常用命令
+* 安装命令
+```bash
+gnvm install 8.2.1
+```
+* 切换`node`版本
+```bash
+gnvm use 12.8.0
+```
+* 查看`node`版本
+```bash
+node -v
+```
+* 列出本地已存在的全部 Node.js 版本
+```bash
+gnvm ls
+```
+* 更多参考
+[http://ksria.com/gnvm/?lang=zh-cn](http://ksria.com/gnvm/?lang=zh-cn)
