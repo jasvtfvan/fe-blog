@@ -156,11 +156,12 @@ UUID=11xxxx9e-2xx9-4xx0-bxx3-d77xxxxxx397 /    ext4    defaults    1 1
 ## 9. 挂载目录
 ### 9.1 创建挂载目录
 ```bash
-mkdir /mnt/data
+mkdir /mnt
 ```
+>/mnt 路径需要跟写入到 /etc/fstab 的一致
 ### 9.2 挂载新硬盘
 ```bash
-mount /dev/vdb1 /mnt/data
+mount /dev/vdb1 /mnt
 ```
 ## 10. 查看磁盘分区
 ```bash
@@ -174,7 +175,7 @@ tmpfs           1.8G  496K  1.8G    1% /run
 tmpfs           1.8G     0  1.8G    0% /sys/fs/cgroup
 /dev/vda1        20G  2.6G   17G   14% /
 tmpfs           361M     0  361M    0% /run/user/0
-/dev/vdb1        40G   49M   38G    1% /mnt/data
+/dev/vdb1        40G   49M   38G    1% /mnt
 ```
 >发现有40G硬盘已经挂载
 ## 参考文章
