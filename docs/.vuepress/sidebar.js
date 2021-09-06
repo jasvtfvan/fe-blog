@@ -1,4 +1,5 @@
 module.exports = {
+  '/wechat/serviceaccount/': ['local-debug'],
   '/javascript/regexp/': [''],
   '/javascript/highlights/': [''],
   '/javascript/promise/': [''],

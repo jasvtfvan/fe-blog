@@ -3,6 +3,17 @@ module.exports = [
     text: '首页', link: '/'
   },
   {
+    text: '微信平台',
+    items: [
+      {
+        text: '公众号',
+        items: [
+          { text: '本地调试', link: '/wechat/serviceaccount/local-debug' },
+        ]
+      },
+    ]
+  },
+  {
     text: 'javascript',
     items: [
       { text: '正则表达式', link: '/javascript/regexp/' },
