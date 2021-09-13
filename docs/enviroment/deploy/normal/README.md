@@ -316,7 +316,8 @@ server {
 >1, `ps -ef | grep nginx` 得到pid 比如20926<br>
 >2, `vi /run/nginx.pid` 将20926赋值进去<br>
 >3, `nginx -s reload`
-#### 2.13.4 nginx常规配置参考
+
+### 2.14 nginx常规配置参考
 ```js
 user  nginx;
 worker_processes  1;
@@ -332,6 +333,7 @@ http {
   sendfile        on;
   keepalive_timeout  65;
 
+  # 不推荐的配置方法
   server{
     listen  8090;
     server_name 0.0.0.0:8090;
@@ -344,7 +346,41 @@ http {
 
   server{
     listen  80;
+
+    # ip:port 或 域名
     server_name 0.0.0.0:80;
+
+    # 比如，公众号要求 txt文件安全认证
+    location ~* .(txt)$ {
+      root /var/opt/nginx/txt/;
+    }
+
+    # 不缓存页面
+    location /hello-world {
+        alias /var/opt/nginx/html/hello-world/;
+        add_header Last-Modified $date_gmt;
+        expires -1s;
+        index index.html index.htm;
+        try_files $uri $uri/ /hello-world/index.html;
+    }
+
+    # 跨域请求
+    location /static {
+      add_header Access-Control-Allow-Origin *;
+      add_header Access-Control-Allow-Credentials 'true';
+      add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+      add_header Access-Control-Allow-Headers 'DNT,web-token,app-token,Authorization,Accept,Origin,Keep-Alive,User-Agent,X-Mx-ReqToken,X-Data-Type,X-Auth-Token,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+      add_header Access-Control-Expose-Headers 'Content-Length,Content-Range';
+      if ($request_method = 'OPTIONS') {
+        add_header 'Access-Control-Max-Age' 1728000;
+        add_header 'Content-Type' 'text/plain; charset=utf-8';
+        add_header 'Content-Length' 0;
+        return 204;
+      }
+      root /var/opt/nginx/;
+    }
+
+    # / 放到最后
     location / {
       root /var/opt/nginx;
       index index.html index.htm;
@@ -354,15 +390,18 @@ http {
 }
 ```
 * 打包方式
-1. **web_dist** 项目使用绝对路径 (需要配置 8090 这样的端口)
-2. 其他路由使用相对路径<br>
+1. **web_dist** 项目使用绝对路径 (配合 8090 端口)，不推荐
+2. **mobile** 项目使用相对路径<br>
 publicPath: './' （或 publicPath: ''）<br>
-比如 **www** 项目 和 **mobile** 项目
+3. **推荐** **hello-world** 项目使用绝对路径<br>
+publicPath: '/hello-world'<br>
+**推荐该方式**，相比于`2`，可以更好地配置请求路径，如public文件夹下的文件等。
 * 访问地址(部署后最终效果)
 1. http://192.168.3.2 => nginx首页
 2. http://192.168.3.2:8090 => web_dist项目
-3. http://192.168.3.2/www => www项目
 4. http://192.168.3.2/mobile => mobile项目
+5. http://1926.168.3.2/hello-world => hello-world项目
+
 
 ## 3. Docker
 * Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的镜像中，然后发布到任何流行的 Linux或Windows 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口

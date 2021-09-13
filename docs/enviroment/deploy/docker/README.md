@@ -22,18 +22,42 @@ http {
     keepalive_timeout  65;
 
     server{
-      listen  8090;
-      server_name 0.0.0.0:8090;
-      location / {
-        root /var/opt/nginx/web_dist;
-        index index.html index.htm;
-        try_files $uri $uri/ /index.html;
-      }
-    }
-
-    server{
       listen  80;
+
+      # ip:port 或 域名
       server_name 0.0.0.0:80;
+
+      # 比如，公众号要求 txt文件安全认证
+      location ~* .(txt)$ {
+        root /var/opt/nginx/txt/;
+      }
+
+      # 不缓存页面
+      location /hello-world {
+          alias /var/opt/nginx/hello-world/;
+          add_header Last-Modified $date_gmt;
+          expires -1s;
+          index index.html index.htm;
+          try_files $uri $uri/ /hello-world/index.html;
+      }
+
+      # 跨域请求
+      location /static {
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Credentials 'true';
+        add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+        add_header Access-Control-Allow-Headers 'DNT,web-token,app-token,Authorization,Accept,Origin,Keep-Alive,User-Agent,X-Mx-ReqToken,X-Data-Type,X-Auth-Token,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+        add_header Access-Control-Expose-Headers 'Content-Length,Content-Range';
+        if ($request_method = 'OPTIONS') {
+          add_header 'Access-Control-Max-Age' 1728000;
+          add_header 'Content-Type' 'text/plain; charset=utf-8';
+          add_header 'Content-Length' 0;
+          return 204;
+        }
+        root /var/opt/nginx/;
+      }
+
+      # / 放到最后
       location / {
         root /var/opt/nginx;
         index index.html index.htm;
@@ -43,20 +67,18 @@ http {
 }
 ```
 ### data目录
-/data/nginx/data/{index.html,web_dist,www,mobile}
+/data/nginx/data/{index.html,mobile,hello-world}
 ### 前端打包方式
-* 路由使用绝对路径
-**web_dist** 项目
-(需要配置 8090 这样的端口)
-* 路由使用相对路径
-publicPath: './' （或 publicPath: ''）
-**www** 项目 和 **mobile** 项目
+* **mobile** 项目使用相对路径<br>
+publicPath: './' （或 publicPath: ''）<br>
+* **推荐** **hello-world** 项目使用绝对路径<br>
+publicPath: '/hello-world'<br>
+**推荐该方式**，相比于`1`，可以更好地配置请求路径，如public文件夹下的文件等。
 ### docker 启动命令
 ```
 docker run --restart=always \
   -d --name nginx \
   -p 80:80 \
-  -p 8090:8090 \
   -v /Users/jasvtfvan/Documents/data/nginx/config/nginx.conf:/etc/nginx/nginx.conf:ro \
   -v /Users/jasvtfvan/Documents/data/nginx/logs:/var/log/nginx \
   -v /Users/jasvtfvan/Documents/data/nginx/data:/var/opt/nginx \
@@ -65,9 +87,8 @@ docker run --restart=always \
 ### 访问地址
 > 访问地址需要使用ip 
 1. http://192.168.3.2 => nginx首页
-2. http://192.168.3.2:8090 => web_dist项目
-3. http://192.168.3.2/www => www项目
-4. http://192.168.3.2/mobile => mobile项目
+2. http://192.168.3.2/mobile => mobile项目
+3. http://1926.168.3.2/hello-world => hello-world项目
 
 *************************
 
