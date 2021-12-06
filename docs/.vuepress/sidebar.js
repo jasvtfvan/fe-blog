@@ -45,6 +45,9 @@ module.exports = {
   '/enviroment/tools/git/': [''],
   '/enviroment/tools/node/': [''],
   '/enviroment/os/centos/': ['mnt','cmd'],
+  '/enviroment/os/mac/': [
+    'switch-hosts',
+  ],
   '/enviroment/deploy/normal/': [''],
   '/enviroment/deploy/cicd/': [''],
   '/enviroment/deploy/gitlab/': [''],

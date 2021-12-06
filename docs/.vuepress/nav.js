@@ -55,6 +55,7 @@ module.exports = [
         items: [
           { text: 'centOS', link: '/enviroment/os/centos/mnt' },
           { text: 'linux常用命令', link: '/enviroment/os/centos/cmd' },
+          { text: 'mac技巧', link: '/enviroment/os/mac/switch-hosts' },
         ]
       },
       {
