@@ -431,6 +431,15 @@ yum install -y yum-utils device-mapper-persistent-data lvm2
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 yum install -y docker-ce docker-ce-cli containerd.io
 ```
+>device-mapper-persistent-data: 存储驱动，Linux上的许多高级卷管理技术 lvm: 逻辑卷管理器，用于创建逻辑磁盘分区使用
+#### 3.2.3 优化安装
+```bash {2,3}
+yum install -y yum-utils device-mapper-persistent-data lvm2
+sudo yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+yum install -y docker-ce
+```
+>使用阿里云镜像安装<br>
+>只安装`docker-ce`
 #### 3.2.3 常见异常
 * 在执行`3.2.2`第2行时，有时会出现异常
 ```
@@ -723,3 +732,39 @@ docker info
 docker inspect [image-id]
 ```
 >最后看到镜像对应路径为`新路径`
+
+## 6. docker-compose
+
+docker-compose安装的前提是先安装`docker`
+
+### 6.1 官网路径
+github地址：[https://github.com/docker/compose](https://github.com/docker/compose)<br>
+官方文档：[https://docs.docker.com/compose/cli-command/#install-on-linux](https://docs.docker.com/compose/cli-command/#install-on-linux)<br>
+yml文件格式与内核关系：[https://docs.docker.com/compose/compose-file/compose-file-v3/](https://docs.docker.com/compose/compose-file/compose-file-v3/)
+
+### 6.2 旧版安装(1.9.2)
+```bash{3}
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
+>命令使用`docker-compose`，而新版里使用`docker compose`
+
+### 6.3 给当前用户安装
+* 查看版本信息
+[https://github.com/docker/compose/releases](https://github.com/docker/compose/releases)
+* 安装（`v2.2.3`举例）
+```bash{1}
+mkdir -p ~/.docker/cli-plugins/
+curl -SL https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+chmod +x ~/.docker/cli-plugins/docker-compose
+docker compose version
+```
+
+### 6.4 给所有用户安装 **(推荐)**
+```bash{1}
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -SL https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+docker compose version
+```
